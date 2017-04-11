@@ -1,9 +1,9 @@
 # Major studio one
 ### project collaboration w/ Urban Ecology Lab
-#####Parsons Data Visualization (MS)
+##### Parsons Data Visualization (MS)
 
-##data sources
-######original dataset:
+## data sources
+###### original dataset:
 
 - .1. [urban ecology lab - map PLUTO](https://drive.google.com/drive/u/1/folders/0B6r_XA2F-ffxc2twSlBCOUQzNTQ)
 
@@ -27,7 +27,7 @@ example: [API endpoint: venue](https://api.foursquare.com/v2/venues/search?near=
 		median household income NYC (scale: per lot/block)
 
 
-######dataset after joining/parsing:
+###### dataset after joining/parsing:
 example:
 
 | name           | address         | boro      | lat         | lng          | postcode | categories | stats | rating | text__type | text__text_extract | violation__recentScore | violation__recentTime    | violation__historyScore | violation__historyVCode | violation__closed_before | id |
@@ -40,17 +40,17 @@ example:
 
 
 
-##topic
+## topic
 - combine Restaurant Inspection data and foursquare review/rating data, find interesting pattern between **restaurant's sanitation level (inspection data)** and what **New Yorker's real reflection (foursquare API)** about those restaurant. ```f.e: top 10 filthiest restaurants new yorker's love the most```
 - find the relationship between **household income** and **restaurant sanitation problem**.
  ```f.e: base on geolocation(each street block/district), mapping income and restaurant sanitation score in the map```
 
-######key words:
+###### key words:
 **Sentiment analysis**: foursquare customer review text analysis. extract all _Adjectives_ / _Adverbs_ base on _positive_ / _negative_ context.
 
 **Manhattan**: focuing all the restaurant in Mahattan(~ 5500 restaurants).
 
 **Filthy-but-lovin'it INDEX**: Quantify the relationship between restaurant inspection score and foursquare rating (1-10).
 
-##Design Sketches
-######plan A:
+## Design Sketches
+###### plan A:

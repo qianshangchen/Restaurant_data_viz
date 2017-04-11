@@ -106,8 +106,25 @@ mapping each restaurant on the map with two variables: sanitation level and hous
 
 ###### plan B:
 
+**prototype**: 
+
 **Landing page**:
+
+Use map and to show each restaurants in Manhattan, and navigation button on the right hand side. because Manhattan is a narrow island, so I dicede use up and down direction to navigate though the map.
+
+- use a lot of button to change the **level / type of measurement**
+- color code base on **level / type of measurement**
+- **flyby animation** when you click the nav button.
+- **tooltips** show the detail info of each restaurants(sannitation problem, foursquare sentiment analysis result, etc).
+
+
 ![alttex](https://raw.githubusercontent.com/Jiahao01121/Restaurant_data_viz/master/assets/restaurant_plan_B-01.jpg)
 
 **analysis page (second slide)**:
+
+This mock up shows the idea that the analysis page I want to use one chart show all the relationship between foursquare rating; inspection score, household income etc.(the form of chart haven't decided, but it definitely goona be one zoomable chart).
+
+- the x axis is ordered by **latitude**(up-to-down).
+- the y axis have lots of types/ level of measurement, that will show the relationship between each restaurant that ordered by geolocation(x axis).
+
 ![alttex](https://raw.githubusercontent.com/Jiahao01121/Restaurant_data_viz/master/assets/restaurant_plan_B-02.jpg)

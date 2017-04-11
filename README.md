@@ -12,7 +12,7 @@ X
 - .1. [urban ecology lab - map PLUTO](https://drive.google.com/drive/u/1/folders/0B6r_XA2F-ffxc2twSlBCOUQzNTQ)
 
 example:
-![alt text](https://github.com/Jiahao01121/Restaurant_data_viz/blob/master/assets/mapPLUTO.jpeg)
+![alt text](https://raw.githubusercontent.com/Jiahao01121/Restaurant_data_viz/master/assets/mapPLUTO.jpeg)
 
 
 - .2. [open data NYC - restaurant inspection data](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/xx67-kt59)
@@ -60,3 +60,9 @@ example:
 
 ## Design Sketches
 ###### plan A:
+
+welcome page/Landing: ![alttext](https://raw.githubusercontent.com/Jiahao01121/Restaurant_data_viz/master/assets/restaurant_destroyed-01.jpg)
+
+![alttext](https://raw.githubusercontent.com/Jiahao01121/Restaurant_data_viz/master/assets/restaurant_destroyed-02.jpg)
+
+Because All New Yorker's think NYC as **"center of the universe"**, so I decide to make the main visualization shape as a planet, in the center, **each big circle represent each violation categories**(total 78); and **all the small dots obits represents each restaurants in Manhattan**.

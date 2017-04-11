@@ -2,6 +2,10 @@
 ### project collaboration w/ Urban Ecology Lab
 ##### Parsons Data Visualization (MS)
 
+X
+
+![alt text](https://raw.githubusercontent.com/Jiahao01121/Restaurant_data_viz/master/assets/uelLogo.jpeg)
+
 ## data sources
 ###### original dataset:
 

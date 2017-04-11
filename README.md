@@ -106,4 +106,8 @@ mapping each restaurant on the map with two variables: sanitation level and hous
 
 ###### plan B:
 
-Landing page:
+**Landing page**:
+![alttex](https://raw.githubusercontent.com/Jiahao01121/Restaurant_data_viz/master/assets/restaurant_plan_B-01.jpg)
+
+**analysis page (second slide)**:
+![alttex](https://raw.githubusercontent.com/Jiahao01121/Restaurant_data_viz/master/assets/restaurant_plan_B-02.jpg)

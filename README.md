@@ -66,3 +66,16 @@ welcome page/Landing: ![alttext](https://raw.githubusercontent.com/Jiahao01121/R
 ![alttext](https://raw.githubusercontent.com/Jiahao01121/Restaurant_data_viz/master/assets/restaurant_destroyed-02.jpg)
 
 Because All New Yorker's think NYC as **"center of the universe"**, so I decide to make the main visualization shape as a planet, in the center, **each big circle represent each violation categories**(total 78); and **all the small dots obits represents each restaurants in Manhattan**.
+
+- on the top-right, is a navigation area, to lead reader's explore the visualization graph.
+
+- on the bottom-right area, all the text, location, sanitation problem and foursquare review text change programmatically when you mouse over small dots(which represents each restaurants in Manhattan)
+
+- the location of the dots in this graph is assigned by force layout algorithm, so that is **NOT mapping base on Lat,Lng**.
+
+demostration when you mouse over **restaurants**. (sanitation problems are both shows on the tooltips and bottom-right area) :
+![alt text](https://github.com/Jiahao01121/Restaurant_data_viz/blob/master/assets/restaurant_destroyed-03.jpg?raw=true)
+
+demostration when you mouse over **sanitation problems**. (tooltips will show the total number of restaurants which have this sanitation problem. **bottom-right area will not change text when you mouseover sannitation problems**) :
+
+![alt text](https://github.com/Jiahao01121/Restaurant_data_viz/blob/master/assets/restaurant_destroyed-04.jpg?raw=true)

@@ -12,6 +12,8 @@ X
 - .1. [urban ecology lab - map PLUTO](https://drive.google.com/drive/u/1/folders/0B6r_XA2F-ffxc2twSlBCOUQzNTQ)
 
 example:
+![alt text](https://github.com/Jiahao01121/Restaurant_data_viz/blob/master/assets/mapPLUTO.jpeg)
+
 
 - .2. [open data NYC - restaurant inspection data](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/xx67-kt59)
 

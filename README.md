@@ -61,6 +61,8 @@ example:
 ## Design Sketches
 ###### plan A:
 
+[**prototype**](https://jiahao01121.github.io/Restaurant_data_viz/second_draft_mar_25/index.html)
+
 **welcome page/Landing**:
 
 Because All New Yorker's think NYC as **"center of the universe"**, so I decide to make the main visualization shape as a planet, in the center, **each big circle represent each violation categories**(total 78); and **all the small dots obits represents each restaurants in Manhattan**.
@@ -106,7 +108,7 @@ mapping each restaurant on the map with two variables: sanitation level and hous
 
 ###### plan B:
 
-**prototype**: 
+[**prototype**](https://jiahao01121.github.io/Restaurant_data_viz/third_draft_mar_25/index.html)
 
 **Landing page**:
 

@@ -102,3 +102,8 @@ demonstrate when you click top ten restaurant, it will show you detailed info ab
 
 mapping each restaurant on the map with two variables: sanitation level and household income (per st. block) and write a paragraph or two to highlight the finding.
 ![alttext](https://raw.githubusercontent.com/Jiahao01121/Restaurant_data_viz/master/assets/restaurant_destroyed-08.jpg)
+
+
+###### plan B:
+
+Landing page:

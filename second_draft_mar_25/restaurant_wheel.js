@@ -14,50 +14,127 @@ var node_pointed,
     link_associated  = [],
     node_associated = [],
     node_for_text = {id : "arbitrary"},
-    node_pointed_previous = {id : "arbitrary"},
+    node_for_violation = '',
+    node_pointed_previous = {id : "__arbitrary"},
     node_associated_previous = [{id:'arbitrary'}];
 
+var toggle_color_for_last_inspect = false,
+    toggle_mv = true;
+
+var rating_max = 9.7,
+    rating_min = 4.5,
+    color_for_rating = d3.scaleLinear()
+    .domain([rating_min, rating_max])
+    .range(["#FF6701", "#00B551"]);
+
 function jquery(){
+  $('#infoPanel_vio_code').css('display','none');
+  $('#infoPanel_vio_des').css('display','none');
+  $('.infoPanel_righthand_vio_rating').css('display','')
   d3.select("#infoPanel_Data_name").transition().duration(10/2)
     .style("opacity", 0)
     .transition().duration(1000/2)
     .style("opacity", 1)
-  $('#infoPanel_Data_name').text(node_for_text.name)
+  $('#infoPanel_Data_name').text(node_for_text.name).css('display','')
 
   d3.select("#infoPanel_Location").transition().duration(10/2)
     .style("opacity", 0)
     .transition().duration(1000/2)
     .style("opacity", 1)
-  $('#infoPanel_Location').text("Address:   "+node_for_text.address+", "+node_for_text.boro+", "+node_for_text.postcode)
+  $('#infoPanel_Location').text("Address:   "+node_for_text.address+", "+node_for_text.boro+", "+node_for_text.postcode).css('visibility','visible')
 
   d3.select("#infoPanel_Category").transition().duration(10/2)
     .style("opacity", 0)
     .transition().duration(1000/2)
     .style("opacity", 1)
-  $('#infoPanel_Category').text("Category:   "+node_for_text.categories)
+  $('#infoPanel_Category').text("Category:   "+node_for_text.categories).css('visibility','visible')
 
   var ago = moment.duration(moment().diff(node_for_text.violation.recentTime)).humanize() + " ago";
   d3.select("#infoPanel_LastInspect").transition().duration(10/2)
     .style("opacity", 0)
     .transition().duration(1000/2)
     .style("opacity", 1)
-  $('#infoPanel_LastInspect').text("last time sanitary inspection:   "+ago)
+  $('#infoPanel_LastInspect').text("last time sanitary inspection:   "+ago).css('visibility','visible')
   /*****************************************************************
   * overflow dark_side;
   *
   *****************************************************************/
-  // svg.selectAll('rect').data(node_for_text.violation.historyVcode)
-  // .enter().append('rect').attr('x',10)
-  //
-  d3.select('.dark_side_list')
-  //   .selectAll('li')
-  //   .data(node_for_text.violation.historyVcode)
-  //   .enter()
-  //   .append('li')
+  d3.select(".dark_side_list")
+    .selectAll('li')
+    .remove()
+  var item = d3.select('.dark_side_list')
+    .selectAll('li')
+    .data(node_for_text.violation.historyVCode)
+    .enter()
+    .append('li')
+    .transition().duration(10/2)
+    .style("opacity", 0)
+    .transition().duration(1000/2)
+    .style("opacity", 1)
+    .attr('class','dark_item')
+    .text(function(d){ return "problem code: "+ d +" -- "+ code_correspond_description[d]})
+  /*****************************************************************
+  * overflow rating;
+  *
+  *rating indicator;
+  *****************************************************************/
+  var pdl="";
+  if(Number.isInteger(node_for_text.rating)){pdl = "15px" }else{ pdl = "12px"};
+      d3.select("#rating_score_text").text(node_for_text.rating + " / 10")
+        .style('font-size','0.5em')
+        .style('color','white')
+        .style('text-align','center')
+        .style('position','absolute')
+        .style('margin-top','5px')
+        .style('padding-left',pdl)
 
-    // .text(function(d){ return data})
-
+      d3.select('#rating_score_block')
+        .style('background-color',color_for_rating(node_for_text.rating))
+        .style('border-radius','20px')
+        .style('height',"20px")
+        .style('width',"50px")
+        .style('display',"inline-block")
+        .style('margin-left',"30.7%")
+  /*****************************************************************
+  * overflow rating;
+  *
+  * positive
+  *****************************************************************/
+  d3.select(".rating_list_positive")
+    .selectAll('li')
+    .remove()
+  // var item = d3.select('.rating_list_positive')
+    // .selectAll('li')
+    // .data()
 };
+
+function jquery_vio(){
+  console.log(node_for_violation);
+  // d3.select("#infoPanel_vio_code").transition().duration(10/2)
+  //   .style("opacity", 0)
+  //   .transition().duration(1000/2)
+  //   .style("opacity", 1)
+  $('#infoPanel_vio_code').text("Sanitation Problem Category: "+node_for_violation).css('display' , "inline")
+  // d3.select("#infoPanel_vio_des").transition().duration(10/2)
+  //   .style("opacity", 0)
+  //   .transition().duration(1000/2)
+  //   .style("opacity", 1)
+  $('#infoPanel_vio_des').text(code_correspond_description[node_for_violation]).css('display','inline');
+  //
+  // d3.select("#infoPanel_Data_name").transition().duration(10/2)
+  //   .style("opacity", 0)
+  //   .transition().duration(1000/2)
+  //   .style("opacity", 1)
+
+
+  $('#infoPanel_Data_name').css('display','none')
+  $('#infoPanel_Location').css('visibility','hidden')
+  $('#infoPanel_Category').css('visibility','hidden')
+  $('#infoPanel_LastInspect').css('visibility','hidden')
+  $('.infoPanel_righthand_vio_rating').css('display','none')
+
+  // console.log(code_correspond_description[id]);
+}
 
 function draw_vio_tooltip(d){
   tooltip.transition().duration(10/2)
@@ -107,8 +184,32 @@ function drawLink(d){
 
 function drawNode_inspc(d) {
   if(d.gr == 'v' ){
-    context.moveTo(d.x + 10, d.y);
-    context.arc(d.x, d.y, 10, 0, 2 * Math.PI);
+    context.fillStyle = "#970ac6";
+    context.font = "900 19px Miller-DisplayItalic"; //Miller-DisplayItalic
+    context.textAlign = "center";
+    context.fillText(d.id,d.x,d.y+10);
+    // context.moveTo(d.x + 10, d.y);
+    // context.arc(d.x, d.y, 10, 0, 2 * Math.PI);
+  }
+};
+
+function drawNode_button_last_inspect(d) {
+  // console.log(data[d.id]);
+  if(d.gr == 'r' ){
+    if(data[d.id] !== undefined){
+      context.beginPath();
+      context.moveTo(d.x + 3, d.y);
+      context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+      if(data[d.id].violation.color_for_last_inspect){
+          context.fillStyle = data[d.id].violation.color_for_last_inspect;
+      }else
+      {
+          context.fillStyle = '#fff'
+      }
+      context.fill();
+      context.strokeStyle = '#1b1f3a'
+      context.stroke();
+    }
   }
 };
 
@@ -145,8 +246,11 @@ function drawNode_interact(d) {
     context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
   }
   if(d.gr == 'v' ) {
-    context.moveTo(d.x + 10, d.y);
-    context.arc(d.x, d.y, 10, 0, 2 * Math.PI);
+    context.fillStyle = "#fff";
+    context.font = "900 19px Miller-DisplayItalic"; //Miller-DisplayItalic
+    context.fillText(d.id,d.x,d.y+10);
+    // context.moveTo(d.x + 10, d.y);
+    // context.arc(d.x, d.y, 10, 0, 2 * Math.PI);
   }
 };
 
@@ -181,13 +285,13 @@ function setup(cb){
     simulation = d3.forceSimulation()
       .force(  'link', d3.forceLink().id(function(d){ return d.id;})  )
       .force(  'charge', d3.forceManyBody().strength(-140).distanceMax(202).distanceMin(function(d){ return d3.randomUniform(3000)()})  )
-      .force(  'center', d3.forceCenter(-(width * 0.1),height *0.25))  //-(width*0.05),height *1.65/ 3)
+      .force(  'center', d3.forceCenter(-(width * 0.01),height *0.25))  //-(width*0.05),height *1.65/ 3)
       .force(  'forceX', d3.forceX(1000).x(1000)  )
       .force(  'forceY', d3.forceY(1000)  )
       .force(  'Collision', d3.forceCollide(
           function(d){
             if(d.gr == "v"){
-              return 20
+              return 25 //20 for circle
             }else{
               return null
             }
@@ -232,7 +336,7 @@ function draw_wheel(){
           transform = d3.event.transform;
           ticked();
       });
-    zoom.scaleTo( d3.select(canvas), .55 );
+    zoom.scaleTo( d3.select(canvas), .5 );
     /*****************************************************************
     * bind simulation;
     *
@@ -256,9 +360,11 @@ function draw_wheel(){
       )
       .call(zoom).on("wheel.zoom", null)
       .on('mousemove',mv)
+      .on('click',clicked)
     /*****************************************************************
-    * bind keyboard for zoom;
+    * keyboard control
     *
+    * bind keyboard for zoom;
     * @param {keyboard}
     *****************************************************************/
     Mousetrap.bind(['=', '+', 'pageup'], function() {
@@ -274,9 +380,119 @@ function draw_wheel(){
       .call(zoom.scaleTo, transform.k -=.1);
     });
 
+    /*****************************************************************
+    * button control
+    *
+    *****************************************************************/
+    $('.button_last_inspection_color').each(function(){
+      $(this).qtip({
+          content: {
+              text: $(this).next(".button_last_inspection_color_tooltips")
+          },
+          position: {
+              my: 'center bottom swap',
+              at: 'bottom center',
+              target: 'mouse',
+              adjust: { x: 0, y: 65 }
+          },
+          show: {
+              effect: function() {
+                  $(this).fadeTo(200, 1);
+              }
+          },
+          hide: {
+              effect: function() {
+                $(this).fadeOut(200);
+              }
+          },
+          style: {
+              classes: 'qtip-tipsy'
+          }
+      });
+    });
+
+    $('.button_grade_color').each(function(){
+      $(this).qtip({
+          content: {
+              text: $(this).next(".button_grade_color_tooltips")
+          },
+          position: {
+              my: 'center bottom swap',
+              at: 'bottom center',
+              target: 'mouse',
+              adjust: { x: 0, y: 80 }
+          },
+          show: {
+              effect: function() {
+                  $(this).fadeTo(200, 1);
+              }
+          },
+          hide: {
+              effect: function() {
+                $(this).fadeOut(200);
+              }
+          },
+          style: {
+              classes: 'qtip-tipsy'
+          }
+      });
+    });
+
+    $( ".button_grade_color").css('background-color','#e96043')
+    $( ".button_last_inspection_color" ).click(button_change_color);
+    $(".button_grade_color").click(button_default_color)
+    function button_change_color(){
+      $(this).css('background-color','#e96043');
+      $('.button_grade_color').animate({
+			     backgroundColor: '#000222'
+	    }, 500 );
+      // .css('background-color','#000222');
+      /* hard coded here, for the performance*/
+      var max = 1487998800000,
+          min = 1443499200000,
+          color_for_last_inspect = d3.scaleLinear()
+          .domain([min, max])
+          .range(["red", "white"]); //first parameter is the latest inspect, second one is the oldest.
+          // .range(["brown", "steelblue"]);
+      data.forEach(function(d){
+          d.violation.color_for_last_inspect = color_for_last_inspect(Date.parse(d.violation.recentTime));
+      });
+      toggle_color_for_last_inspect = true;
+      ticked();
+    }
+
+    function button_default_color(){
+      $(this).css('background-color','#e96043');
+      $('.button_last_inspection_color').animate({
+			     backgroundColor: '#000222'
+	    }, 500 );
+      toggle_color_for_last_inspect = false;
+      ticked();
+    }
+
+    function clicked(){
+
+      if(!$(".tgl-skewed").is(':checked')){
+        $(".tgl-skewed").prop('checked',true)
+      }else{
+        $(".tgl-skewed").prop('checked',false)
+      }
+      if(toggle_mv){
+        toggle_mv = false;
+      }else if (!toggle_mv) {
+        toggle_mv = true;
+      }
+    }
+    /*****************************************************************
+    * mousemover event
+    *
+    *
+    *****************************************************************/
     function mv(){
+      if(toggle_mv == true){
         var p = d3.mouse(this); //coordinates
         var x = d3.event.x;
+
         /*****************************************************************
         * variable for pass nodes and related links to fc ticked();
           to update and draw those stuff.
@@ -302,34 +518,50 @@ function draw_wheel(){
                     });
                 };
             });
+            //here can pass previous data.
             node_associated = removeDuplicates(node_associated,"id");
             if(node_pointed !== undefined) {
               ticked();
               if(node_pointed.gr){
                   if(node_pointed_previous.id !== node_pointed.id){
                     node_pointed_previous = node_pointed;
-                    if(node_pointed.gr =='v'){
+                    if(node_pointed.gr == 'v'){
                     draw_vio_tooltip(node_pointed);
                     }
-                    if(node_pointed.gr =='r'){
+                    if(node_pointed.gr == 'r'){
                       draw_tooltip_mouseover_r()
                     }
                   }
               }
             }
         })();
-
         //add text
         if(!isNaN(+node_pointed.id)){
           if(node_for_text.id !== +node_pointed.id){
             node_for_text = data[+node_pointed.id];
             jquery();
           }
+          if(node_for_text.id == +node_pointed.id){
+            node_for_text = data[+node_pointed.id];
+          }
         }
+        if(isNaN(+node_pointed.id)){
+          if(node_for_violation !== node_pointed.id){
+              node_for_violation = node_pointed.id;
+              console.log(node_for_violation);
+              jquery_vio();
+          }
+          if(node_for_violation == node_pointed.id){
+            node_for_violation = node_pointed.id
+          }
+        }
+      }
     }
 
-  function ticked(){
 
+
+  // main fc.
+  function ticked(){
       context.save();
       context.clearRect(0,0,width,height);
       context.translate(transform.x,transform.y);
@@ -338,6 +570,7 @@ function draw_wheel(){
       //violations point
       context.beginPath();
       graph.nodes.forEach(drawNode_inspc);
+
       context.fillStyle = '#970ac6';
       context.fill();
       context.strokeStyle = '#1b1f3a';
@@ -391,6 +624,13 @@ function draw_wheel(){
             context.fill();
         }
       }
+    //button for last inspect color
+    if(toggle_color_for_last_inspect == true){
+      graph.nodes.forEach(drawNode_button_last_inspect);
+      // toggle_color_for_last_inspect = false;
+    }
+
+
       context.restore();
   }
   draw_vio_tooltip(d);

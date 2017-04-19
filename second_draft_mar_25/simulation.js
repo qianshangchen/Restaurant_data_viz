@@ -95,7 +95,26 @@
 // a.splice(0,1)
 // console.log(a);
 
- var a  =Date.parse( "2017-01-24T05:00:00.000Z");
-var b = Date.now()
+ // var a  =Date.parse( "2017-01-24T05:00:00.000Z");
+// var b = Date.now()
  // console.log(Date.parse(a))
-console.log(b -a);
+// console.log(b -a);
+
+var fs = require('fs');
+var data = JSON.parse(fs.readFileSync('mar_25_all_mahat_5233outOf9881.json','utf8'))
+var min = Infinity;
+for (var i = 0; i < data.length; i++) {
+  if(min >data[i].rating){
+    min = data[i].rating;
+  }
+
+}
+console.log(min);
+//
+// var tidy = {};
+// for (var i = 0; i < data.length; i++) {
+//   tidy[data[i].vio_code] = data[i].vio_des;
+// }
+// console.log(tidy);
+// console.log(Object.keys(tidy).length);
+// fs.writeFileSync('code_correspond_description.json',JSON.stringify(tidy),'utf8')

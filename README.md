@@ -61,7 +61,7 @@ example:
 ## Design Sketches
 ###### plan A:
 
-[**prototype**](https://jiahao01121.github.io/Restaurant_data_viz/second_draft_mar_25/index.html)
+[**prototype**](https://jiahao01121.github.io/Restaurant_data_viz//second_draft_mar_25/index.html)
 
 **welcome page/Landing**:
 

@@ -13,6 +13,7 @@ var graph,
     code_correspond_description;
 
 var canvas,
+    svg,
     context,
     width,
     height,
@@ -37,10 +38,47 @@ var rating_max = 9.7,
     .domain([rating_min, rating_max])
     .range(["#FF6701", "#00B551"]);
 
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+  if (typeof stroke == 'undefined') {
+    stroke = true;
+  }
+  if (typeof radius === 'undefined') {
+    radius = 5;
+  }
+  if (typeof radius === 'number') {
+    radius = {tl: radius, tr: radius, br: radius, bl: radius};
+  } else {
+    var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+    for (var side in defaultRadius) {
+      radius[side] = radius[side] || defaultRadius[side];
+    }
+  }
+  ctx.beginPath();
+  ctx.moveTo(x + radius.tl, y);
+  ctx.lineTo(x + width - radius.tr, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+  ctx.lineTo(x + width, y + height - radius.br);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+  ctx.lineTo(x + radius.bl, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+  ctx.lineTo(x, y + radius.tl);
+  ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+  ctx.closePath();
+  if (fill) {
+    ctx.fill();
+  }
+}
+
 function jquery(){
+  $('#infoPanel_vio_analyze').css('display','none');
+  $('#infoPanel_vio_analyze_num').css('display','none');
   $('#infoPanel_vio_code').css('display','none');
   $('#infoPanel_vio_des').css('display','none');
-  $('.infoPanel_righthand_vio_rating').css('display','')
+  $('.mousemover_violation').css('display','none');
+
+  $('.dark_side').css('display','block')
+  $('.rating').css('display','')
+  $('#mapbox').css('display','block')
   d3.select("#infoPanel_Data_name").transition().duration(10/2)
     .style("opacity", 0)
     .transition().duration(1000/2)
@@ -100,11 +138,6 @@ function jquery(){
 
       d3.select('#rating_score_block')
         .style('background-color',color_for_rating(node_for_text.rating))
-        .style('border-radius','20px')
-        .style('height',"20px")
-        .style('width',"50px")
-        .style('display',"inline-block")
-        .style('margin-left',"30.7%")
   /*****************************************************************
   * overflow rating;
   *
@@ -113,10 +146,113 @@ function jquery(){
   d3.select(".rating_list_positive")
     .selectAll('li')
     .remove()
-  // var item = d3.select('.rating_list_positive')
-    // .selectAll('li')
-    // .data()
 
+  d3.select('.rating_list_positive')
+    .selectAll('li')
+    .data(_.where(node_for_text.text,{type:'liked'}))
+    .enter()
+    .append('li')
+    .transition().duration(10/2)
+    .style("opacity", 0)
+    .transition().duration(1000/2)
+    .style("opacity", 1)
+    .attr('class','rating_pos_item')
+    .text(function(d){
+        if(d.type == "liked"){
+          if(d.text_extract.length == 0){
+            return "no key word for this positive review"
+          }else{
+            return d.text_extract.join(' - ');
+          }
+        }
+    })
+    $('#meh_button').click(function(){
+        $('#meh_button').css('text-decoration','underline')
+        $('#positive_button').css('text-decoration','none')
+        $('#negative_button').css('text-decoration','none')
+      d3.select(".rating_list_positive")
+        .selectAll('li')
+        .remove();
+console.log("meh");
+console.log(node_for_text);
+      d3.select('.rating_list_positive')
+        .selectAll('li')
+        .data(_.where(node_for_text.text,{type:'meh'}))
+        .enter()
+        .append('li')
+        .transition().duration(10/2)
+        .style("opacity", 0)
+        .transition().duration(1000/2)
+        .style("opacity", 1)
+        .attr('class','rating_pos_item')
+        .text(function(d){
+            if(d.type == "meh"){
+              if(d.text_extract.length == 0){
+                return "no key word for this meh review"
+              }else{
+                return d.text_extract.join(' - ');
+              }
+            }
+        })
+    })
+    $('#negative_button').click(function(){
+        $('#meh_button').css('text-decoration','none')
+        $('#positive_button').css('text-decoration','none')
+        $('#negative_button').css('text-decoration','underline')
+      d3.select(".rating_list_positive")
+        .selectAll('li')
+        .remove();
+        console.log("negative act");
+
+      d3.select('.rating_list_positive')
+        .selectAll('li')
+        .data(_.where(node_for_text.text,{type:'disliked'}))
+        .enter()
+        .append('li')
+        .transition().duration(10/2)
+        .style("opacity", 0)
+        .transition().duration(1000/2)
+        .style("opacity", 1)
+        .attr('class','rating_pos_item')
+        .text(function(d){
+            if(d.type == "disliked"){
+              if(d.text_extract.length == 0){
+                return "no key word for this negative review"
+              }else{
+                return d.text_extract.join(' - ');
+              }
+            }
+        })
+    })
+    $('#positive_button').click(function(){
+
+        $('#meh_button').css('text-decoration','none')
+        $('#positive_button').css('text-decoration','underline')
+        $('#negative_button').css('text-decoration','none')
+      d3.select(".rating_list_positive")
+        .selectAll('li')
+        .remove()
+
+      d3.select('.rating_list_positive')
+        .selectAll('li')
+        .data(_.where(node_for_text.text,{type:'liked'}))
+        .enter()
+        .append('li')
+        .transition().duration(10/2)
+        .style("opacity", 0)
+        .transition().duration(1000/2)
+        .style("opacity", 1)
+        .attr('class','rating_pos_item')
+        .text(function(d){
+            if(d.type == "liked"){
+              if(d.text_extract.length == 0){
+                return "no key word for this positive review"
+              }else{
+                return d.text_extract.join(' - ');
+              }
+            }
+        })
+    })
 
 
 
@@ -126,7 +262,7 @@ function jquery(){
 			$("#map_repleaser").css('display','none')
 			 map = new mapboxgl.Map({
 			  style: 'mapbox://styles/jiahao01121/cj1trhr1j001y2st2zso35lyp',
-			  attributionControl: false,
+			  // attributionControl: false,
 			  center: [-73.99746894836426, 40.714183527347096],
 			  zoom: 12.366671128219522,
 			  pitch: 45,
@@ -141,33 +277,32 @@ function jquery(){
 		}
 	}
 	if(!map_toggle){
-		if(map_setup_toggle){
-			map.addSource('point', {
-			  "type": "geojson",
-			  "data": {"type": "Point","coordinates": [-73.98605346679688, 40.755222049021405]}
-					});
-			map.addLayer({
-			  "id": "point",
-			  "source": "point",
-			  "type": "circle",
-			  "paint": {
-				  "circle-radius": 3,
-				  "circle-color": "#fff",
-				  "circle-opacity": .8,
-				  "circle-pitch-scale": "map"}
-		  	});
-			map_setup_toggle = false;
-			map_ready = true;
-		};
-	if(map_ready){
-		map.getSource('point').setData({
-			"type": "Point",
-			"coordinates": [node_for_text.lng, node_for_text.lat]});
-		map.flyTo({
-			center: [node_for_text.lng,node_for_text.lat],
-			zoom:12});
-	}
-
+  		if(map_setup_toggle){
+  			map.addSource('point', {
+  			  "type": "geojson",
+  			  "data": {"type": "Point","coordinates": [-73.98605346679688, 40.755222049021405]}
+  					});
+  			map.addLayer({
+  			  "id": "point",
+  			  "source": "point",
+  			  "type": "circle",
+  			  "paint": {
+  				  "circle-radius": 3,
+  				  "circle-color": "#fff",
+  				  "circle-opacity": .8,
+  				  "circle-pitch-scale": "map"}
+  		  	});
+  			map_setup_toggle = false;
+  			map_ready = true;
+  		};
+  	if(map_ready){
+  		map.getSource('point').setData({
+  			"type": "Point",
+  			"coordinates": [node_for_text.lng, node_for_text.lat]});
+  		map.flyTo({
+  			center: [node_for_text.lng,node_for_text.lat],
+  			zoom:12});
+  	}
 	}
 	/********************************* Map end *********************************/
 };
@@ -175,29 +310,75 @@ function jquery(){
 function jquery_vio(){
   // console.log(node_for_violation);
 
-  // d3.select("#infoPanel_vio_code").transition().duration(10/2)
-  //   .style("opacity", 0)
-  //   .transition().duration(1000/2)
-  //   .style("opacity", 1)
+  d3.select("#infoPanel_vio_code").transition().duration(10/2)
+    .style("opacity", 0)
+    .transition().duration(1000/2)
+    .style("opacity", 1)
   $('#infoPanel_vio_code').text("Sanitation Problem Category: "+node_for_violation).css('display' , "inline")
-  // d3.select("#infoPanel_vio_des").transition().duration(10/2)
-  //   .style("opacity", 0)
-  //   .transition().duration(1000/2)
-  //   .style("opacity", 1)
+  d3.select("#infoPanel_vio_des").transition().duration(10/2)
+    .style("opacity", 0)
+    .transition().duration(1000/2)
+    .style("opacity", 1)
   $('#infoPanel_vio_des').text(code_correspond_description[node_for_violation]).css('display','inline');
-  //
-  // d3.select("#infoPanel_Data_name").transition().duration(10/2)
-  //   .style("opacity", 0)
-  //   .transition().duration(1000/2)
-  //   .style("opacity", 1)
+  d3.select("#infoPanel_vio_analyze").transition().duration(10/2)
+    .style("opacity", 0)
+    .transition().duration(1000/2)
+    .style("opacity", 1)
+  $('#infoPanel_vio_analyze').text("Total number of restaurant contains this sanitation problem:").css('display','inline');
+  d3.select("#infoPanel_vio_analyze_num").transition().duration(10/2)
+    .style("opacity", 0)
+    .transition().duration(1000/2)
+    .style("opacity", 1)
+  $('#infoPanel_vio_analyze_num').text(link_associated.length).css('display','block');
+  $('.mousemover_violation').css('display','');
 
+/**************************************** restaurant list ************************************************/
+var partial;
+partial = _.compact(link_associated).splice(0,25);
+// console.log(link_associated);
+d3.select(".mousemover_violation_list")
+  .selectAll('li')
+  .remove()
+var item = d3.select('.mousemover_violation_list')
+  .selectAll('li')
+  .data(partial)
+  .enter()
+  .append('li')
+  .transition().duration(10/2)
+  .style("opacity", 0)
+  .transition().duration(1000/2)
+  .style("opacity", 1)
+  .attr('class','mousemover_violation_item')
+  .text(function(d){ return data[+d.target.id].name } )
 
+  $('#mousemover_violation_button').click(function(){
+    d3.select(".mousemover_violation_list")
+      .selectAll('li')
+      .remove()
+    var item = d3.select('.mousemover_violation_list')
+      .selectAll('li')
+      .data(link_associated)
+      .enter()
+      .append('li')
+      .transition().duration(10/2)
+      .style("opacity", 0)
+      .transition().duration(1000/2)
+      .style("opacity", 1)
+      .attr('class','mousemover_violation_item')
+      .text(function(d){ return data[+d.target.id].name } )
+  })
+/**************************************** restaurant list end ************************************************/
   $('#infoPanel_Data_name').css('display','none')
   $('#infoPanel_Location').css('visibility','hidden')
   $('#infoPanel_Category').css('visibility','hidden')
   $('#infoPanel_LastInspect').css('visibility','hidden')
-  $('.infoPanel_righthand_vio_rating').css('display','none')
-
+  $('.dark_side').css('display','none')
+  $('.rating').css('display','none')
+  d3.select("#mapbox").transition().duration(10/2)
+    .style("opacity", 0)
+    .transition().duration(1000/2)
+    .style("opacity", 1)
+  $('#mapbox').css('display','none')
   // console.log(code_correspond_description[id]);
 }
 
@@ -301,12 +482,12 @@ function zoom_init(arg_k, arg_x, arg_y){
     if(window.innerHeight > 800 ){
     // {k: 0.48700213427162076, x: 759.3835143163928, y: 483.8403018687343}
       k_value =window.innerHeight / (983 / 0.48700213427162076);
-      w_value = window.innerWidth / (1920 / 759.3835143163928);
+      w_value = window.innerWidth / (1920 / 859.3835143163928);
       h_value = window.innerHeight / (983 / 483.8403018687343);
     };
     if(window.innerHeight > 1100 ){
       k_value = window.innerHeight / (983 / 0.48700213427162076);
-      w_value = window.innerWidth / (1920 / 759.3835143163928);
+      w_value = window.innerWidth / (1920 / 859.3835143163928);
       h_value = window.innerHeight / (983 / 483.8403018687343);
     }
     current_scale = arg_k ? arg_k : k_value;
@@ -318,8 +499,12 @@ function zoom_init(arg_k, arg_x, arg_y){
 }
 
 function setup(cb){
+
     $('.slide').css('bottom',function(){
-      return (window.innerHeight - parseFloat( $(".slide").css("height")) ) * 0.618
+      return (window.innerHeight - parseFloat( $(".slide").css("height")) ) * (1-0.618)
+    })
+    $('#tooltip_wheel').css('bottom',function(){
+      return 50;//(window.innerHeight - parseFloat( $(".slide").css("height")) ) * (1-0.618)
     })
     d3.select('body')
     	.append('canvas')
@@ -332,6 +517,8 @@ function setup(cb){
     width = canvas.width;
     height = canvas.height;
     transform = d3.zoomIdentity;
+
+
     /*****************************************************************
     * configure simulation;
     *
@@ -377,6 +564,19 @@ function setup(cb){
 
 
 function draw_wheel(){
+    /*****************************************************************
+    * search;
+    *
+    * searching button.
+    *****************************************************************/
+    function expand() {
+      $(".search").toggleClass("close");
+      $(".input").toggleClass("square");
+      }
+      $("#content").submit(function(e) {
+          e.preventDefault();
+      });
+    $('#search_button').on('click', expand);
     /*****************************************************************
     * init wheel position;
     *
@@ -582,7 +782,7 @@ function draw_wheel(){
     *
     *****************************************************************/
     function mv(){
-		console.log("a");
+		// console.log("a");
 	 if(normal){
       if(toggle_mv == true){
         var p = d3.mouse(this); //coordinates
@@ -655,8 +855,6 @@ function draw_wheel(){
   // main fc.
   function ticked(g){
 	 if(normal){
-
-
       context.save();
       context.clearRect(0,0,width,height);
       context.translate(transform.x,transform.y);
@@ -723,8 +921,11 @@ function draw_wheel(){
       graph.nodes.forEach(drawNode_button_last_inspect);
       // toggle_color_for_last_inspect = false;
     }
-      context.restore();
-	  tick_increment++;
+    context.restore();
+
+
+
+    tick_increment++;
 	  function getRandomIntInclusive(min, max) {
 	  	min = Math.ceil(min);
 	  	max = Math.floor(max);
@@ -742,55 +943,124 @@ function draw_wheel(){
 		    // context.translate(transform.x,transform.y);
 	      // context.scale(transform.k,transform.k);
 
-	      context.beginPath();
+        context.beginPath();
+
+        context.fillStyle = "rgba(255, 255, 255, .2)";
+        context.font = "900 30px futura"; //Miller-DisplayItalic
+        context.textAlign = "left";
+        context.fillText("GRADE: A",graph.nodes[2619+69].x_scatter,graph.nodes[2619+69].y_scatter);
+        context.fillText("GRADE: B",graph.nodes[4383+66].x_scatter,graph.nodes[2619+69].y_scatter);
+        context.fillText("GRADE: C",graph.nodes[4507+66].x_scatter,graph.nodes[2619+69].y_scatter);
 	      graph.nodes.forEach(function(d) {
     	  	  if(d.gr == 'r' ){
-    	  	      context.moveTo(d.x_draw + 3*current_scale-1, d.y_draw);
-    	  	      context.arc(d.x_draw, d.y_draw, 3*current_scale-1, 0, 2 * Math.PI);
+                context.beginPath();
+
+    	  	      context.moveTo(d.x_draw + 3 * current_scale-1,
+                  d.y_draw
+                );
+    	  	      context.arc(d.x_draw,
+                  d.y_draw,
+                  3 * current_scale-1,
+                  0,
+                  2 * Math.PI
+                );
+
+                context.fillStyle = 'rgba(254, 77, 1, 0.3)'
+        	      context.fill();
+
     	  	  }
 	  	  });
-	      context.fillStyle = '#cd772c'
-	      context.fill();
-	      context.strokeStyle = '#1b1f3a'
-	      context.stroke();
-	      context.restore();
+        context.strokeStyle = "rgba(27, 31, 58,0.575)";
+        context.stroke();
 
+
+	      context.restore();
 	  }
   } //ticked
 
 
   $('.test').click(function(){
     $(this).children().children().addClass('active')
-    $('.active').animate({
-   opacity: 0.25,
-   left: "+=50",
+    // $('.active').animate({
+  //  opacity: 0.25,
+  //  left: "+=50",
   //  height: "toggle"
- }, 5000, function() {
+ // }, 5000, function() {
    // Animation complete.
- });
+ // });
+
+    svg = d3.select('body').append('svg').attr('class','sub_visual')
+      .attr('width',width)
+      .attr('height',height)
+
+    $('#tooltip_wheel').css('display','none')
+    $('#tooltip_plot_grade_rating')
+      .css('display','block')
+      .css('left',window.innerWidth - 400 - $('#tooltip_plot_grade_rating').width())
+      .css('bottom',function(){return 50 });
     /********************************** compute scatter plot ****************************************/
-	  var locat = graph.nodes.map(function(d){if(!isNaN(+d.id)){return data[+d.id].lat;}});
-	  locat.splice(0,78);
-	  var locat_max = d3.max(locat)
-	  var locat_min = d3.min(locat)
+	  var vio_s = graph.nodes.map(function(d){if(!isNaN(+d.id)){ return data[+d.id].violation.recentScore;}});
+	  vio_s.splice(0,78);
+	  var vio_s_max = d3.max(vio_s)
+	  var vio_s_min = d3.min(vio_s)
+
+
 	  var rate = graph.nodes.map(function(d){if(!isNaN(+d.id)){return data[+d.id].rating;}});
 	  rate.splice(0,78);
 	  var rate_max = d3.max(rate)
 	  var rate_min = d3.min(rate)
 	  var linearScaleX = d3.scaleLinear()
-      .domain([locat_min,locat_max])
-      .range([0,window.innerWidth]);
+      .domain([vio_s_min,vio_s_max])
+      .range([150 + 25, window.innerWidth - 400]);
 	  var linearScaleY = d3.scaleLinear()
-      .domain([rate_min,rate_max])
-      .range([0,window.innerHeight]);
+      .domain([rate_max,rate_min])
+      .range([0 + 35, window.innerHeight - 35]);
     graph.nodes.forEach(function(d){
 	    if(d.gr == "r"){
 		    d.x_draw = 0;
     	  d.y_draw = 0;
-        d.x_scatter = linearScaleX(data[+d.id].lat);
+        d.x_scatter = linearScaleX(data[+d.id].violation.recentScore);
         d.y_scatter = linearScaleY(data[+d.id].rating);
 	    }
     });
+
+    var gx = svg.append('g')
+      .attr('class','axis')
+      .attr("transform", "translate(0," + (window.innerHeight -25) + ")")
+      .call(customXAxis)
+    function customXAxis(g) {
+        g.call(d3.axisTop(linearScaleX)
+            .tickValues([13, 27])
+              );
+        g.selectAll('.tick line').attr('y2','-'+(window.innerHeight -70)).attr("stroke-dasharray", "2,10").style('z-index',3);
+        g.selectAll(".tick text").attr("x", 10).attr("dy", 4);
+
+        g.append('text')
+          .attr('y',15)
+          .attr('x',parseFloat(g.select('path').attr('d').match(/[^M].+,/g)))
+          .attr('text-anchor','start')
+          .style('font-size','0.558rem')
+          .text('Sanitation Score')
+      }
+
+    var gy = svg.append('g')
+      .attr('id','axis_y')
+      .attr("transform", "translate("+165 +",0)")
+      .call(customYAxis)
+    function customYAxis(g){
+        g.select(".domain").remove();
+        g.call(d3.axisLeft(linearScaleY))
+        g.selectAll(".tick text").attr("y", -10).attr("x", 0).style('font-size','.438rem');
+
+        g.select('.tick')
+          .append('text')
+          .attr('y',g.select('.tick').select('text').attr('y') -25)
+          .attr('x',g.select('.tick').select('line').attr('x2'))
+          .attr('dy','0.32em')
+          .attr('text-anchor','start')
+          .style('font-size','0.558rem')
+          .text('Foursquare Rating')
+      }
     /***************************************** animation *******************************************/
     current_scale = transform.k
     var timer = d3.timer(function(e){
@@ -807,8 +1077,8 @@ function draw_wheel(){
           var t = Math.min(1,d3.easeCubicOut(e/1500));
 
           graph.nodes.forEach(function(d){
-            d.x_draw = ((transform.x+  d.x) / transform.k) * (1-t) + d.x_scatter * t
-            d.y_draw = ((transform.y+  d.y) / transform.k) * (1-t) + d.y_scatter * t
+            d.x_draw = ((transform.x +  d.x) / transform.k) * (1-t) + d.x_scatter * t
+            d.y_draw = ((transform.y +  d.y) / transform.k) * (1-t) + d.y_scatter * t
           });
           ticked();
           if (t === 1) {
@@ -817,27 +1087,279 @@ function draw_wheel(){
         })
       }
     })
-    /***************************************** animation *******************************************/
+    /***************************************** find *******************************************/
     var tree = d3.quadtree()
       .extent([[0, 0], [window.innerWidth, window.innerHeight]])
       .x(function(d) { return d.x_scatter})
       .y(function(d) { return d.y_scatter})
       .addAll(graph.nodes);
-
-    select_canvas.on('mousemove',grid_mv);
+      if(d3.select('.temporary')._groups[0][0] == null){
+        d3.select('body')
+            .append('canvas')
+            .attr('height',window.innerHeight)
+            .attr('width',window.innerWidth)
+            .attr('class','temporary')
+            .canvas(true);
+        var canvas_temp = document.querySelector('.temporary');
+        var context_temp = canvas_temp.getContext('2d');
+      }
+    /***************************************** second canvas *******************************************/
+    var featured_point=[];
+    d3.select('.temporary').on('mousemove',grid_mv);
+    d3.select('.temporary').on('click',grid_click);
+    var p_prev = {id: "arbitrary"};
+    var clicked = true;
     function grid_mv(){
+        clicked = true;
+        featured_point=[];
     	  var m = d3.mouse(this),
     	      p = tree.find(m[0], m[1]);
+        if(p_prev.id !== p.id){
+          p_prev = p;
           node_for_text = data[+p.id];
-    	 //  console.log(data[+p.id]);
-     //  console.log(p);
-      jquery();
+          jquery();
+          console.log("prev !== next");
+          (function(){
+            var use = _.sortBy(_.sortBy(graph.nodes,'x_draw'),'y_draw');
+            var i = 0;
+            var count = 0;
+            var toggle_loop = true;
+            use.forEach(function(d){
+              if(d.y_scatter == p.y_scatter){
+                if(d.x_scatter == p.x_scatter){
+                  featured_point.push(d);
+                  i+=25;
+                  count++;
+            }}})
+
+            var timer_ease = d3.timer(function(e){
+
+              var ease = Math.min(1,d3.easePolyOut(e/500,4));
+
+              context_temp.save();
+              context_temp.clearRect(0,0,width,height);
+
+
+              var interval = 0;
+              featured_point.forEach(function(d){
+                  context_temp.beginPath();
+                  context_temp.moveTo( (d.x_draw  + interval *25 )*ease + d.x_draw * (1-ease),
+                    d.y_draw
+                  );
+                  context_temp.arc((d.x_draw  + interval *25)*ease + d.x_draw * (1-ease),
+                    d.y_draw,
+                    7*ease + 3* (1-ease) ,
+                    0,
+                    2 * Math.PI
+                  );
+                  context_temp.fillStyle = 'rgba(254, 77, 1, .8)'
+                  context_temp.fill();
+                  interval++;
+              })
+              if(count >= 2){
+                context_temp.globalCompositeOperation = 'destination-over'
+                context_temp.fillStyle = "rgba(255, 255, 255,.7)";
+                roundRect(context_temp,
+                  p.x_scatter + 7.5,
+                  p.y_scatter - 15,
+                  (i-25 +7.5) * ease + 50* (1-ease),
+                  30,
+                  20,
+                  true);
+              }
+              context_temp.restore();
+
+              if(ease == 1){
+                console.log("stop");
+                timer_ease.stop();
+              }
+              toggle_loop = false;
+            })
+
+          })()
+
+        }
+        if(p_prev.id == p.id){
+          console.log("prev = next");
+          node_for_text = data[+p.id];
+          (function(){
+            var use = _.sortBy(_.sortBy(graph.nodes,'x_draw'),'y_draw');
+            var i = 0;
+            var count = 0;
+            var toggle_loop = true;
+            use.forEach(function(d){
+              if(d.y_scatter == p.y_scatter){
+                if(d.x_scatter == p.x_scatter){
+                  featured_point.push(d);
+                  i+=25;
+                  count++;
+            }}})
+            context_temp.save();
+            context_temp.clearRect(0,0,width,height);
+            var interval = 0;
+            featured_point.forEach(function(d){
+                context_temp.beginPath();
+                context_temp.moveTo( (d.x_draw  + interval *25 ),
+                  d.y_draw
+                );
+                context_temp.arc((d.x_draw  + interval *25),
+                  d.y_draw,
+                  7 ,
+                  0,
+                  2 * Math.PI
+                );
+                context_temp.fillStyle = 'rgba(254, 77, 1, .8)'
+                context_temp.fill();
+                interval++;
+            })
+            if(count >= 2){
+              context_temp.globalCompositeOperation = 'destination-over'
+              context_temp.fillStyle = "rgba(255, 255, 255,.7)";
+              roundRect(context_temp,
+                p.x_scatter + 7.5,
+                p.y_scatter - 15,
+                (i-25 +7.5),
+                30,
+                20,
+                true);
+            }
+            context_temp.restore();
+          })()
+        }
+    }
+
+
+
+    function grid_click(){
+
+      if(clicked){
+        var dig_data = featured_point,
+            interval_ = 0;
+            loop_once = true,
+            pointed_prev = {id:"arbitrary"};
+
+            $('.slide').css('right','2rem')
+        		$('.slide').css('background-color',"rgb(27, 31, 58)")
+        		$('.slide').css('opacity',"0.92")
+        		$('.slide').css('box-shadow',"-31px 8px 180px 2px rgba(14, 16, 33, 0.5)")
+            $('.popup_button').css('display','block')
+            $('.popup_button').css('z-index',10)
+
+            d3.select('.temporary').on('mousemove',function(){
+              var m = d3.mouse(this),
+                  minDistance = Infinity;
+              if(loop_once){
+                  dig_data.forEach(function(d){
+                      d.x_draw_temp = d.x_draw  + (interval_ *25);
+
+                      interval_++;
+                  })
+                  loop_once = false;
+              }
+              dig_data.forEach(function(d){
+                var dx = d.x_draw_temp - m[0];
+                var dy = d.y_draw - m[1];
+                var distance = Math.sqrt((dx * dx) + (dy * dy));
+                // console.log(distance);
+                if(distance < minDistance && distance < 7){
+                    if(pointed_prev.id !== d.id){
+                      node_for_text = data[+d.id];
+                      jquery();
+                      pointed_prev = d;
+                    }
+                    if(pointed_prev.id !== d.id){
+                      node_for_text = data[+d.id];
+                    }
+                }
+              })
+            });
+
+            var timer_ease_c = d3.timer(function(e){
+              var ease_v = Math.min(1,d3.easeBackInOut(e/800));
+              var ease_color = d3.scaleQuantile()
+              .domain([0, 1])
+              .range(['rgba(254, 77, 1, .8)', 'rgba(127, 235, 255, .8)']);
+              context_temp.save();
+              context_temp.clearRect(0,0,width,height);
+              dig_data.forEach(function(d,i){
+                    context_temp.beginPath();
+                    context_temp.moveTo( (d.x_draw  + i *(25*(1-ease_v) + 30*ease_v ) ),
+                          d.y_draw
+                        );
+                    context_temp.arc((d.x_draw  + i *(25*(1-ease_v) + 30*ease_v )),
+                          d.y_draw,
+                          9*ease_v + 7*(1-ease_v),
+                          0,
+                          2 * Math.PI
+                        );
+                    context_temp.fillStyle = ease_color(parseFloat(ease_v));
+                    context_temp.fill();
+              })
+              if(dig_data.length >= 2){
+                context_temp.globalCompositeOperation = 'destination-over'
+                context_temp.fillStyle = "rgba(255, 255, 255,.7)";
+                roundRect(context_temp,
+                  dig_data[0].x_scatter + (7.5*(1-ease_v) + 9*ease_v),
+                  dig_data[0].y_scatter - (15*(1-ease_v) + 20*ease_v ),
+                  ((30*dig_data.length) -30 +7.5),
+                  40*ease_v + 30 *(1-ease_v),
+                  20*(1-ease_v) + 25*ease_v,
+                  true);
+              }
+              context_temp.fillStyle = "#ffffff";
+              context_temp.font = "900 12px futura";
+              context_temp.textAlign = "center";
+              // context.moveTo(((30*dig_data.length) -30 +7.5) / 2,dig_data[0].y_scatter - 20)
+              context_temp.fillText(
+                "Total Restaurant here: "+dig_data.length,
+                dig_data[0].x_scatter +9 + ((((30*dig_data.length) -30 +7.5) ) / 2),
+                dig_data[0].y_scatter + 40
+              );
+              context_temp.font = "900 9px futura";
+
+              context_temp.fillText(
+                "Sanitation Score: "+ data[+dig_data[0].id].violation.recentScore,
+                dig_data[0].x_scatter +9 + ((((30*dig_data.length) -30 +7.5) ) / 2),
+                dig_data[0].y_scatter + 70
+              );
+              context_temp.font = "900 9px futura";
+
+              context_temp.fillText(
+                "Foursquare Rating: "+ data[+dig_data[0].id].rating,
+                dig_data[0].x_scatter +9 + ((((30*dig_data.length) -30 +7.5) ) / 2),
+                dig_data[0].y_scatter + 90
+              );
+              context.closePath();
+
+
+              context_temp.restore();
+              if(ease_v ==1){
+                  timer_ease_c.stop();
+              }
+            })
+      }
+      if(!clicked){
+        d3.select('.temporary').on('mousemove',grid_mv)
+        context_temp.clearRect(0,0,width,height)
+        $('.slide').css('right','-23.063rem')
+  			$('.popup_button').css('display','none')
+  			$('.slide').css('opacity',"")
+  			$('.slide').css('box-shadow',"")
+  			$('.slide').css('background-color',"")
+      }
+      clicked = false;
+
     }
   }); //button_grid
 
 
 
   $('.test_two').click(function(){
+    $('#plot_rating').removeClass('active')
+    $('#tooltip_wheel').css('display','block')
+    $('#tooltip_plot_grade_rating').css('display','none')
+    d3.selectAll('.temporary').remove();
+    d3.selectAll('.sub_visual').remove();
 
    zoom_init();
    current_scale = 1;

@@ -181,8 +181,14 @@
     <div id ="nav_bar">
       <h1 id='header'>the price of convenience</h1>
       <form id="content">
-        <input type="text" name="input" class="input">
+        <input type="text" name="input" class="input" autocomplete="off">
         <button type="reset" class="search" id="search_button"></button>
+        <div id="search_list_container" style="visibility: hidden">
+        <ul id="search_list">
+          <!-- <li><div class="search_item">aa</div></li> -->
+          <!-- <li><div class="search_item">bbb gg</div></li> -->
+        </ul>
+        </div>
       </form>
 
       <hr id="hr_bar_one" size="1" noshade color="white">

@@ -1,5 +1,10 @@
+var temp_svg_search, temp_svg_search_g,gradient,click_t = true,toggle_stroke = false,
+svg_search_toggle = true,
+toogle_axis_search = false,
+total_point_voronoi=[];
+var options,fuse;
 var current_scale;
-var button_back_to_wheel = false;
+// var button_back_to_wheel = false;
 var grid = false, normal = true;
 var tick_increment = 0;
 mapboxgl.accessToken = 'pk.eyJ1IjoiamlhaGFvMDExMjEiLCJhIjoiY2l6bjI5ZHI1MDJkYzJxbzg1NXJmYWxvMSJ9.AhMpv-yiSAvqlo7bi2UBig';
@@ -37,7 +42,9 @@ var rating_max = 9.7,
     color_for_rating = d3.scaleLinear()
     .domain([rating_min, rating_max])
     .range(["#FF6701", "#00B551"]);
-
+function p5_map(n, start1, stop1, start2, stop2) {
+  return ((n-start1)/(stop1-start1))*(stop2-start2)+start2;
+};
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
   if (typeof stroke == 'undefined') {
     stroke = true;
@@ -173,8 +180,6 @@ function jquery(){
       d3.select(".rating_list_positive")
         .selectAll('li')
         .remove();
-console.log("meh");
-console.log(node_for_text);
       d3.select('.rating_list_positive')
         .selectAll('li')
         .data(_.where(node_for_text.text,{type:'meh'}))
@@ -390,7 +395,7 @@ function drawLink(d){
 function drawNode_inspc(d) {
   if(d.gr == 'v' ){
     context.fillStyle = "#970ac6";
-    context.font = "900 19px Miller-DisplayItalic"; //Miller-DisplayItalic
+    context.font = "900 22px Miller-DisplayItalic"; //Miller-DisplayItalic
     context.textAlign = "center";
     context.fillText(d.id,d.x,d.y+10);
     // context.moveTo(d.x + 10, d.y);
@@ -420,7 +425,7 @@ function drawNode_button_last_inspect(d) {
 
 function drawNode_restaurant_A(d) {
   if(d.gr == 'r' ){
-    if(d.gd >0 && d.gd <13){
+    if(d.gd <=13){
       context.moveTo(d.x + 3, d.y);
       context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
     }
@@ -429,7 +434,7 @@ function drawNode_restaurant_A(d) {
 
 function drawNode_restaurant_B(d) {
   if(d.gr == 'r' ){
-    if(d.gd >13 && d.gd <27){
+    if(d.gd >13 && d.gd <=27){
       context.moveTo(d.x + 3, d.y);
       context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
     }
@@ -447,12 +452,13 @@ function drawNode_restaurant_C(d) {
 
 function drawNode_interact(d) {
   if(d.gr == 'r' ){
+    // console.log(d)
     context.moveTo(d.x + 3, d.y);
     context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
   }
   if(d.gr == 'v' ) {
     context.fillStyle = "#fff";
-    context.font = "900 19px Miller-DisplayItalic"; //Miller-DisplayItalic
+    context.font = "900 22px Miller-DisplayItalic"; //Miller-DisplayItalic
     context.fillText(d.id,d.x,d.y+10);
     // context.moveTo(d.x + 10, d.y);
     // context.arc(d.x, d.y, 10, 0, 2 * Math.PI);
@@ -497,6 +503,201 @@ function zoom_init(arg_k, arg_x, arg_y){
        .scale(arg_k ? arg_k : k_value)
   })
 }
+
+
+function search_res_append(_data){
+
+
+
+  $('.popup_button').click(function(){
+    $('.popup_button').css('display','none')
+    $('.slide').css('right','-23.063rem')
+    $('.popup_button').css('display','none')
+    $('.slide').css('opacity',"")
+    $('.slide').css('box-shadow',"")
+    $('.slide').css('background-color',"")
+
+    // toggle_mv = true;
+    // $(".tgl-skewed").prop('checked',false);
+  })
+  total_point_voronoi =[];
+    /************************* search list ******************************/
+    d3.select('#search_list')
+      .selectAll('li')
+      .remove();
+      if(_data){
+          d3.select('#search_list')
+            .selectAll('li')
+            .data(_data)
+            .enter()
+            .append('li')
+            .attr('class','search_item')
+            .text(function(d){return d.name;});
+
+      $('#search_list li').hover(function(){
+        $(this).css('background-color',"#ffffff");
+        var cores = _data[$(this).index()];
+        $(this).append( $( "<p>"+ cores.address +"</p>" ) );
+        $(this).children().animate({opacity:1},500);
+      },function(){
+        $(this).css('background-color',"");
+        $(this).children().remove();
+      })
+    /************************* line chart & click li ******************************/
+    $('#search_list li').click(function(){
+
+      $('.mask-on').css('background','-moz-linear-gradient(left,rgba(0, 0, 0, 0.50) 0%,rgba(0, 0, 0, 0.50) 37%,rgb(27, 31, 58) 80%)')
+      $('.mask-on').css('background','-webkit-linear-gradient(left, rgba(0, 0, 0, 0.50) 0%,rgba(0, 0, 0, 0.50) 37%,rgb(27, 31, 58) 80%)')
+      $('.mask-on').css('background','linear-gradient(to left, rgba(0, 0, 0, 0.50) 0%,rgba(0, 0, 0, 0.50) 37%,rgb(27, 31, 58) 80%)')
+      $('.mask-on').css('z-index','1');
+
+      var cores = _data[$(this).index()];
+      var margin = 100;
+
+      var y = d3.scaleLinear()
+      .domain(d3.extent([0,80], function(d) { return d; }))
+      .rangeRound([window.innerHeight - $('#tooltip_wheel').height() -80, margin-50])
+      var x = d3.scaleLinear()
+      .domain(d3.extent(cores.violation.historyScore, function(d,i) { return i; }))
+      .rangeRound([28,   parseFloat(d3.select('svg').attr('width')) - margin/2 ])
+      /************************* line chart line ******************************/
+      var line = temp_svg_search_g
+        .append('path')
+        .attr('class','line_chart '+ "ID_"+cores.id)
+        .datum(cores.violation.historyScore)
+        .attr("fill", "none")
+        .attr("stroke", "url(#gradient)")
+        .attr("stroke-width", 3)
+        .attr("d", d3.line()
+          .x(function(d,i) { return x(i); }) // d[0] or i
+          .y(function(d) { return  y(d); })
+        .curve(d3.curveBundle.beta(1)));
+        /************************* line chart line text name ******************************/
+        temp_svg_search_g
+          .append('text')
+          .attr('class','line_discription '+"ID_TEXT"+cores.id)
+          .attr('x',x(cores.violation.historyScore.length-1))
+          .attr('y',y(cores.violation.historyScore[cores.violation.historyScore.length-1]) )
+          .attr("text-anchor", "start")
+          .attr('width','50')
+          .text(cores.name);
+        /************************* line chart line text score ******************************/
+        temp_svg_search_g
+          .append('text')
+          .attr('class','line_discription_score  ID_SCORE'+cores.id)
+          .attr('x',x(cores.violation.historyScore.length-1) )
+          .attr('y',y(cores.violation.historyScore[cores.violation.historyScore.length-1]) + 10)
+          .attr("text-anchor", "end")
+          .style('opacity',0)
+          .text("Highest Sanitation Score: " +d3.max(cores.violation.historyScore) );
+      /************************* line chart x y axis ******************************/
+      if(toogle_axis_search){
+          temp_svg_search_g
+          .append("g")
+          .attr("transform", "translate(0," +( window.innerHeight - $('#tooltip_wheel').height() -80) + ")")
+          .call(d3.axisTop(x))
+          .attr('class','axis_search_x')
+          .selectAll(".tick")
+          .remove();
+
+          d3.select('.axis_search_x').append('text')
+          .attr('x',parseFloat(d3.select('.axis_search_x path').attr('d').match(/[^M]+.,/g)))
+          .attr('y',15)
+          .attr("text-anchor", "start")
+          .text("One Year Ago");
+          var for_y_axis = d3.select('.axis_search_x path').attr('d').match(/H[1-9].{1,}V/g);
+          d3.select('.axis_search_x').append('text')
+          .attr('x',parseFloat(for_y_axis[0].split("H")[1]))
+          .attr('y',15)
+          .attr("text-anchor", "end")
+          .text("Now");
+
+
+          var y_ax = temp_svg_search_g
+          .append("g")
+          .attr("transform", "translate(" +parseFloat(d3.select('.axis_search_x path').attr('d').match(/[^M]+.,/g))+ ",0)")
+          .call(d3.axisLeft(y))
+          .attr('class','axis_search_y')
+          .select('.domain')
+          .remove();
+
+          d3.select('.axis_search_y .tick')
+          .remove();
+
+          d3.select('.axis_search_y')
+          .append("text")
+          .attr("fill", "#000")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", "1.71em")
+          .attr('x','-14')
+          .attr("text-anchor", "end")
+          .text("Sanitation Score");
+
+          toogle_axis_search = false;
+      }
+
+      var feed_voronoi= cores.violation.historyScore.map(function(d,i){var obj = {};obj[i] = d;obj.id = cores.id;obj.xScale = x;return obj;})
+      total_point_voronoi.push(feed_voronoi);
+      d3.selectAll('.voronoi path').remove();
+      d3.selectAll('.voronoi').remove();
+      var voronoi = d3.voronoi()
+          .x(function(d,i) {return d.xScale(+Object.keys(d)[0]);})
+          .y(function(d) {return y(d[Object.keys(d)[0]]); })
+          .extent([[50, 100], [$('.svg_search').width()-50, $('.svg_search').height()-100]]);
+      var voronoiGroup = temp_svg_search_g.append("g")
+          .attr("class", "voronoi");
+
+      /************************* voronoi mouseover ******************************/
+      voronoiGroup.selectAll("path")
+          .data(voronoi.polygons(  d3.merge(total_point_voronoi.map(function(d) { return d; }))  ))
+          .enter().append("path")
+          .attr("d", function(d) { return d ? "M" + d.join("L") + "Z" : null; })
+          .on("mouseover", function(d){
+            // console.log("in");
+            d3.selectAll('.line_chart').attr('stroke-opacity',0.15)
+            d3.select(".ID_"+d.data.id).attr('stroke-opacity',1)
+
+            d3.selectAll('.line_discription').style('opacity',.2)
+            d3.select(".ID_TEXT"+d.data.id).style('opacity',1)
+            d3.select('.ID_SCORE'+d.data.id).style('opacity',1)
+            node_for_text = data[d.data.id];
+            if(click_t){jquery()}
+          })
+          .on("mouseout", function(d){
+            // console.log("out");
+            d3.select('.ID_SCORE'+d.data.id).style('opacity',0)
+            d3.selectAll(".line_chart").attr('stroke-opacity','1').attr('stroke-width','3')
+            d3.selectAll('.line_discription').style('opacity',1);
+            d3.select('line_discription_score').style('opacity',0)
+          })
+          .on('click',function(d){
+                if(!click_t){
+                  $('.slide').css('right','-23.063rem');
+                  console.log("dprese");
+                  $('.popup_button').css('display','none');
+                  $('.slide').css('opacity',"");
+                  $('.slide').css('box-shadow',"")
+                  $('.slide').css('background-color',"")
+                  $('.slide').css('z-index',2)
+                  click_t = true;
+                }
+                else if(click_t){
+                  $('.slide').css('right','2rem')
+              		$('.slide').css('background-color',"rgb(27, 31, 58)")
+              		$('.slide').css('opacity',"0.92")
+              		$('.slide').css('box-shadow',"-31px 8px 180px 2px rgba(14, 16, 33, 0.5)")
+                  $('.slide').css('z-index',20)
+                  $('.popup_button').css('display','block')
+                  $('.popup_button').css('z-index',10000);
+                  click_t = false;
+                };
+          })
+    }) //click li on search list
+  }
+}
+
+
 
 function setup(cb){
 
@@ -558,6 +759,7 @@ function setup(cb){
           graph  =  _graph;
           data  =  _data;
           code_correspond_description  =  _code_correspond_description;
+
           cb();
       }) // queue
 };
@@ -569,14 +771,71 @@ function draw_wheel(){
     *
     * searching button.
     *****************************************************************/
+    options = {shouldSort: true,tokenize: true,threshold: 0.2,location: 0,distance: 500,maxPatternLength: 32,minMatchCharLength: 1,keys: ["name",]};
+    fuse = new Fuse(data, options);
+
     function expand() {
       $(".search").toggleClass("close");
       $(".input").toggleClass("square");
+      if ($('.search').hasClass('close')){
+              $('input').focus();
+              $('#search_list_container').css({'opacity': "1","visibility":''});
+              toogle_axis_search = true;
+
+              temp_svg_search = d3.select('body').append('svg').attr('width',window.innerWidth-((23*16)+150)).attr('height',window.innerHeight).attr('class','svg_search');
+              function grai(){
+                if(svg_search_toggle){
+                gradient = temp_svg_search.append("defs").append("linearGradient")
+                  .attr("id", "gradient")
+                  .attr("x1", "0%")
+                  .attr("y1", "0%")
+                  .attr("x2", "0%")
+                  .attr("y2", "100%");
+                gradient.append("stop")
+                  .attr("offset", "0%")
+                  .attr("stop-opacity", "1")
+                  .attr("stop-color", "#ff5bff");
+                gradient.append("stop")
+                  .attr("offset", "10%")
+                  .attr("stop-opacity", "1")
+                  .attr("stop-color", "#805bff");
+                gradient.append("stop")
+                  .attr("offset", "100%")
+                  .attr("stop-opacity", "0.8")
+                  .attr("stop-color", "#1b1f3a");
+                svg_search_toggle = false;
+                }
+              }
+              grai();
+              temp_svg_search_g = temp_svg_search.append('g');
+              search_res_append();
       }
-      $("#content").submit(function(e) {
-          e.preventDefault();
-      });
+      else{
+              $('input').blur();
+              $('.mask-on').css('background','')
+              $('.mask-on').css('z-index','-1');
+
+              $('#search_list_container').css({'opacity': "0","visibility":'hidden'});
+              d3.selectAll('.svg_search').remove();
+              svg_search_toggle = true;
+
+      }
+    }
+
+    $("#content").submit(function(e) {
+        e.preventDefault();
+    });
+
     $('#search_button').on('click', expand);
+
+    $('.input').keyup(function(e){
+      console.log(this.value);
+      var search_res = fuse.search(this.value);
+      var trim = search_res.splice(0,15);
+      console.log(trim);
+      search_res_append(trim);
+
+    })
     /*****************************************************************
     * init wheel position;
     *
@@ -730,6 +989,11 @@ function draw_wheel(){
 		$('.slide').css('background-color',"rgb(27, 31, 58)")
 		$('.slide').css('opacity',"0.92")
 		$('.slide').css('box-shadow',"-31px 8px 180px 2px rgba(14, 16, 33, 0.5)")
+
+    $('#positive_button').css('text-decoration','underline')
+    $('#meh_button').css('text-decoration','none')
+    $('#negative_button').css('text-decoration','none')
+
 		$('.mask-on').css('background-color','rgba(0, 0, 0, 0.17)')
 		$('.mask-on').css('z-index','1')
 		$('.popup_button').css('display','block')
@@ -853,16 +1117,13 @@ function draw_wheel(){
   }
 
   // main fc.
-  function ticked(g){
+  function ticked(){
 	 if(normal){
       context.save();
       context.clearRect(0,0,width,height);
       context.translate(transform.x,transform.y);
       context.scale(transform.k,transform.k);
 
-      if(button_back_to_wheel){
-         context.globalAlpha = g;
-      }
       //violations point
       context.beginPath();
       graph.nodes.forEach(drawNode_inspc);
@@ -872,6 +1133,9 @@ function draw_wheel(){
       context.strokeStyle = '#1b1f3a';
       context.lineWidth =.5;
       context.stroke();
+
+      context.fillStyle = '#970ac6';
+      context.fill();
       //restaurants point: A
       context.beginPath();
       graph.nodes.forEach(drawNode_restaurant_A);
@@ -940,9 +1204,6 @@ function draw_wheel(){
 	  if(grid){
 	      context.save();
 	      context.clearRect(0,0,width,height);
-		    // context.translate(transform.x,transform.y);
-	      // context.scale(transform.k,transform.k);
-
         context.beginPath();
 
         context.fillStyle = "rgba(255, 255, 255, .2)";
@@ -951,30 +1212,51 @@ function draw_wheel(){
         context.fillText("GRADE: A",graph.nodes[2619+69].x_scatter,graph.nodes[2619+69].y_scatter);
         context.fillText("GRADE: B",graph.nodes[4383+66].x_scatter,graph.nodes[2619+69].y_scatter);
         context.fillText("GRADE: C",graph.nodes[4507+66].x_scatter,graph.nodes[2619+69].y_scatter);
+
 	      graph.nodes.forEach(function(d) {
+            if(d.gr == 'v'){
+
+              context.fillStyle = "rgba(151, 10, 198, "+ d.circle_opacity+")";
+              context.font = "900 " +22*transform.k +"px"+ " Miller-DisplayItalic"; //Miller-DisplayItalic
+              context.textAlign = "center";
+              context.fillText(d.id,d.x * transform.k + transform.x,
+                d.y * transform.k + transform.y
+                +(10 *transform.k));
+            }
     	  	  if(d.gr == 'r' ){
                 context.beginPath();
 
-    	  	      context.moveTo(d.x_draw + 3 * current_scale-1,
+    	  	      context.moveTo(d.x_draw +
+                  // (3 / transform.k)
+                  d.circle_size
+                  * transform.k
+                  ,
                   d.y_draw
                 );
     	  	      context.arc(d.x_draw,
                   d.y_draw,
-                  3 * current_scale-1,
+                  // (3 / transform.k)
+                  d.circle_size
+                  * transform.k
+                  ,
                   0,
                   2 * Math.PI
                 );
-
-                context.fillStyle = 'rgba(254, 77, 1, 0.3)'
+                context.fillStyle = d.color;
         	      context.fill();
-
     	  	  }
 	  	  });
-        context.strokeStyle = "rgba(27, 31, 58,0.575)";
+        if(toggle_stroke){
+          context.lineWidth = 1*transform.k;
+          context.strokeStyle = '#1b1f3a';
+        }else{
+          context.strokeStyle = "rgba(27, 31, 58,0.575)";
+        }
         context.stroke();
 
 
 	      context.restore();
+
 	  }
   } //ticked
 
@@ -992,12 +1274,21 @@ function draw_wheel(){
     svg = d3.select('body').append('svg').attr('class','sub_visual')
       .attr('width',width)
       .attr('height',height)
-
     $('#tooltip_wheel').css('display','none')
+
+
+
     $('#tooltip_plot_grade_rating')
       .css('display','block')
       .css('left',window.innerWidth - 400 - $('#tooltip_plot_grade_rating').width())
       .css('bottom',function(){return 50 });
+    d3.select("#tooltip_plot_grade_rating")
+      .transition().duration(10/2)
+      .style("opacity", 0)
+      .transition()
+      .ease(d3.easeQuad)
+      .duration(4000)
+      .style("opacity", 1)
     /********************************** compute scatter plot ****************************************/
 	  var vio_s = graph.nodes.map(function(d){if(!isNaN(+d.id)){ return data[+d.id].violation.recentScore;}});
 	  vio_s.splice(0,78);
@@ -1019,8 +1310,11 @@ function draw_wheel(){
 	    if(d.gr == "r"){
 		    d.x_draw = 0;
     	  d.y_draw = 0;
+        d.circle_size = 0;
+        d.circle_opacity =0;
         d.x_scatter = linearScaleX(data[+d.id].violation.recentScore);
         d.y_scatter = linearScaleY(data[+d.id].rating);
+        d.color = '';
 	    }
     });
 
@@ -1028,6 +1322,13 @@ function draw_wheel(){
       .attr('class','axis')
       .attr("transform", "translate(0," + (window.innerHeight -25) + ")")
       .call(customXAxis)
+      .transition().duration(10/2)
+      .style("opacity", 0)
+      .transition()
+      .ease(d3.easeQuad)
+      .duration(4000)
+      .style("opacity", 1)
+
     function customXAxis(g) {
         g.call(d3.axisTop(linearScaleX)
             .tickValues([13, 27])
@@ -1047,6 +1348,13 @@ function draw_wheel(){
       .attr('id','axis_y')
       .attr("transform", "translate("+165 +",0)")
       .call(customYAxis)
+      .transition().duration(10/2)
+      .style("opacity", 0)
+      .transition()
+      .ease(d3.easeQuad)
+      .duration(4000)
+      .style("opacity", 1)
+
     function customYAxis(g){
         g.select(".domain").remove();
         g.call(d3.axisLeft(linearScaleY))
@@ -1062,31 +1370,63 @@ function draw_wheel(){
           .text('Foursquare Rating')
       }
     /***************************************** animation *******************************************/
-    current_scale = transform.k
-    var timer = d3.timer(function(e){
+    current_scale = transform.k;
+    var interpolate_A = d3.scaleQuantize()
+        .domain([0, 1])
+        .range(d3.quantize(d3.interpolateRgb('rgb(205, 119, 44)','rgb(254, 77, 1)'),4));
+    var interpolate_B = d3.scaleQuantize()
+        .domain([0, 1])
+        .range(d3.quantize(d3.interpolateRgb('rgb(41, 122, 239)','rgb(254, 77, 1)'),4));
+    var interpolate_C = d3.scaleQuantize()
+        .domain([0, 1])
+        .range(d3.quantize(d3.interpolateRgb('rgb(42, 255, 80)' ,'rgb(254, 77, 1)'),4));
 
-      var scale = Math.min(1,d3.easeQuadInOut(e/2000) + current_scale);
-
-      zoom_init(scale, transform.x, transform.y)
-
-      if(scale == 1){
-        // current_scale = 1;
-        timer.restart(function(e){
+    var timer = d3.timer(
+          function(e){
           normal = false;
           grid = true;
-          var t = Math.min(1,d3.easeCubicOut(e/1500));
+          var t = Math.min(1,d3.easeCubicInOut(e/3000));
 
           graph.nodes.forEach(function(d){
-            d.x_draw = ((transform.x +  d.x) / transform.k) * (1-t) + d.x_scatter * t
-            d.y_draw = ((transform.y +  d.y) / transform.k) * (1-t) + d.y_scatter * t
+            // 1-t is starterpoint t is endding point
+            d.x_draw = (d.x * transform.k + transform.x) * (1-t)
+            + d.x_scatter * t;
+
+            d.y_draw = (d.y * transform.k + transform.y) * (1-t)
+            + d.y_scatter * t;
+
+            d.circle_size = p5_map(t,0,1,3-(1*transform.k),3/transform.k);
+
+            d.circle_opacity = Math.round(p5_map(t,0,.999,1,0.3) *10) /10;
+            if(d.gd <=13){
+              d.color = interpolate_A(t).split('(');
+              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+              d.color = d.color.join('');
+            };
+            if(d.gd>13 && d.gd<=27){
+              d.color = interpolate_B(t).split('(');
+              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+              d.color = d.color.join('');
+            };
+            if(d.gd > 27){
+              d.color = interpolate_C(t).split('(');
+              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+              d.color = d.color.join('');
+            };
+            if(d.gr == 'v'){ d.circle_opacity=Math.round(p5_map(t,0,.2,1,0) *10) /10}
           });
+          if(t >=0 && t<0.7){
+            toggle_stroke = true;
+          }
           ticked();
           if (t === 1) {
             timer.stop();
+            toggle_stroke = false;
           }
         })
-      }
-    })
     /***************************************** find *******************************************/
     var tree = d3.quadtree()
       .extent([[0, 0], [window.innerWidth, window.innerHeight]])
@@ -1227,9 +1567,6 @@ function draw_wheel(){
           })()
         }
     }
-
-
-
     function grid_click(){
 
       if(clicked){
@@ -1363,29 +1700,56 @@ function draw_wheel(){
 
    zoom_init();
    current_scale = 1;
+   var interpolate_A = d3.scaleQuantize()
+       .domain([0, 1])
+       .range(d3.quantize(d3.interpolateRgb('rgb(254, 77, 1)','rgb(205, 119, 44)'),4));
+   var interpolate_B = d3.scaleQuantize()
+       .domain([0, 1])
+       .range(d3.quantize(d3.interpolateRgb('rgb(254, 77, 1)','rgb(41, 122, 239)'),4));
+   var interpolate_C = d3.scaleQuantize()
+       .domain([0, 1])
+       .range(d3.quantize(d3.interpolateRgb('rgb(254, 77, 1)','rgb(42, 255, 80)' ),4));
+
    var timer = d3.timer(function(e){
-       var t = Math.min(1,d3.easeCubicIn(e/2000));
+       var t = Math.min(1,d3.easeCubicInOut(e/3000));
        graph.nodes.forEach(function(d){
-        d.x_draw = ((d.x) / transform.k) * (t) + d.x_scatter * (1-t)
-        d.y_draw = (( d.y) / transform.k) * (t) + d.y_scatter * (1-t)
+          d.x_draw = (d.x * transform.k + transform.x) * t + d.x_scatter * (1-t)
+          d.y_draw = (d.y * transform.k + transform.y) * t + d.y_scatter * (1-t)
+          d.circle_size = p5_map(t,0,.999,3/transform.k,  3-(1.5*transform.k) );
+          d.circle_opacity = Math.round(p5_map(t,0,.999,0.3,1) *10) /10;
+          if(d.gr == 'v'){ d.circle_opacity=Math.round(p5_map(t,0,.999,0,1) *10) /10}
+          if(d.gd <=13){
+            d.color = interpolate_A(t).split('(');
+            d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+            d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+            d.color = d.color.join('');
+          };
+          if(d.gd>13 && d.gd<=27){
+            d.color = interpolate_B(t).split('(');
+            d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+            d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+            d.color = d.color.join('');
+          };
+          if(d.gd > 27){
+            d.color = interpolate_C(t).split('(');
+            d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+            d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+            d.color = d.color.join('');
+          };
+
       });
+      if(t >0.5 && t<=1){
+        toggle_stroke = true;
+      }
       ticked();
-       if (t === 1) {
+       if (t == 1) {
         timer.stop();
          normal = true;
          grid = false;
-         button_back_to_wheel = true;
-         var ticking_timerss = d3.timer(function(elep){
-          var alpha = Math.min(1,d3.easeCubicIn(elep/500));
-          ticked(alpha);
-          if(alpha == 1){
-            button_back_to_wheel = false;
-            ticking_timerss.stop();
+         toggle_stroke = false;
             ticked();
-          }
-         })
        }
- })
+   })
    select_canvas.on('mousemove',mv);
 
 

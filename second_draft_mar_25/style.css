@@ -291,12 +291,34 @@ button .test_two{
 .detail_container #infoPanel_Data_name {
   position: relative;
   margin: auto 0;
-  z-index: 1;
+  z-index: 2;
   font-family: Miller-DisplayItalic;
   font-size: 1.875rem;
   color: white;
   max-width: 22.125rem; /*21.125em; */
   text-align: left;
+}
+#restaurant_link{
+  position: absolute;
+  width: 1.688rem;
+  top: 3.675rem;
+  cursor: pointer;
+  z-index: 1;
+}
+#price_tier{
+  position: absolute;
+  font-family: Roboto;
+  color: white;
+  left: 4.375rem;
+  top: 3.575rem;
+  line-height: 0;
+}
+#likes{
+  position: absolute;
+  font-family: Roboto;
+  color: white;
+  right: 26.638rem;
+  top: 2.975rem;
 }
 
 #hr_one{
@@ -697,6 +719,7 @@ svg{
   position: absolute;
   z-index: -1;
   transition: all 0.5s;
+  opacity: 0;
 }
 
 #tooltip_wheel{
@@ -705,6 +728,14 @@ svg{
   bottom: 0;
   left: 10.938rem;
   z-index: 1;
+}
+#tooltip_search{
+  position: absolute;
+  width: 16%;
+  bottom: 0;
+  left: 10.938rem;
+  z-index: 1;
+  display: none;
 }
 #tooltip_plot_grade_rating{
   position: absolute;
@@ -733,6 +764,25 @@ svg{
   fill: white;
 }
 
+.axis_x_price line{
+  stroke: white;
+}
+.axis_x_price path{
+  stroke: white;
+}
+.axis_x_price text{
+  fill: white;
+}
+.axis_y_price line{
+  stroke: white;
+}
+.axis_y_price path{
+  stroke: white;
+}
+.axis_y_price text{
+  fill: white;
+}
+
 .axis_search_y line{
   stroke: white;
 }
@@ -751,15 +801,6 @@ svg{
 .axis_search_x text{
   fill: white;
 }
-/*.line_chart:hover {
-  stroke-width: 5;
-  stroke: white;
-  -webkit-transition: all .1s ease-in-out;
-  -moz-transition: all .1s ease-in-out;
-  -ms-transition: all .1s ease-in-out;
-  -o-transition: all .1s ease-in-out;
-  transition: all .1s ease-in-out;
-}*/
 .line_discription{
   fill: white;
   font-family: futura;
@@ -775,6 +816,18 @@ svg{
   pointer-events: all;
   /*stroke: red;*/
   /*stroke-opacity: 0.2;*/
+}
+.search_exit_button{
+  position: absolute;
+	top: .9rem;
+	left: 9.6rem;
+	font-size: .5rem;
+	background-color: #1b1f3a;
+	height: 1.6rem;
+	width: 1.6rem;
+	border: 2px solid #ffffff;
+	z-index: 1000000;
+	transition: all 0.5s cubic-bezier(0.85, -0.01, 0.21, 1);
 }
 /**************************************/
 /**************************************/
@@ -976,9 +1029,9 @@ z-index: 1000;
   z-index: 1000;
   line-height: 2;
 }
-.search_item p{
+.search_item span{
   color: #a7a7a7;
-  border-top: 1px dotted #ccc;
+  border-bottom: 2px dotted #ccc;
   opacity: .2;
 }
 .svg_search{

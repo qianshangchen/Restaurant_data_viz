@@ -42,6 +42,13 @@ var rating_max = 9.7,
     color_for_rating = d3.scaleLinear()
     .domain([rating_min, rating_max])
     .range(["#FF6701", "#00B551"]);
+var add_search_exit = _.once(function (){
+  d3.select('#infoPanel_container')
+      .append('button')
+      .attr('class','search_exit_button')
+      .style('opacity','1')
+      .text('X')
+})
 function p5_map(n, start1, stop1, start2, stop2) {
   return ((n-start1)/(stop1-start1))*(stop2-start2)+start2;
 };
@@ -86,11 +93,37 @@ function jquery(){
   $('.dark_side').css('display','block')
   $('.rating').css('display','')
   $('#mapbox').css('display','block')
+
   d3.select("#infoPanel_Data_name").transition().duration(10/2)
     .style("opacity", 0)
     .transition().duration(1000/2)
     .style("opacity", 1)
   $('#infoPanel_Data_name').text(node_for_text.name).css('display','')
+  $('#restaurant_link_url').attr('href',node_for_text.url)
+  $('#restaurant_link').css('display','block')
+  d3.select("#price_tier").transition().duration(10/2)
+    .style("opacity", 0)
+    .transition().duration(1000/2)
+    .style("opacity", 1)
+  if(node_for_text.price == 1){
+      $('#price_tier').text("$").css('display','')
+  }else if (node_for_text.price == 2) {
+      $('#price_tier').text("$$").css('display','')
+  }else if (node_for_text.price == 3) {
+      $('#price_tier').text("$$$").css('display','')
+  }else if (node_for_text.price == 4) {
+      $('#price_tier').text("$$$$").css('display','')
+  }else if (node_for_text.price == 5) {
+      $('#price_tier').text("$$$$$").css('display','')
+  }else if (node_for_text.price == null || node_for_text.price == undefined) {
+      $('#price_tier').text("unknown").css('display','')
+  }
+  d3.select("#likes").transition().duration(10/2)
+    .style("opacity", 0)
+    .transition().duration(1000/2)
+    .style("opacity", 1)
+  $('#likes').text(node_for_text.likes+ " likes").css('display','')
+
 
   d3.select("#infoPanel_Location").transition().duration(10/2)
     .style("opacity", 0)
@@ -337,54 +370,57 @@ function jquery_vio(){
   $('#infoPanel_vio_analyze_num').text(link_associated.length).css('display','block');
   $('.mousemover_violation').css('display','');
 
-/**************************************** restaurant list ************************************************/
-var partial;
-partial = _.compact(link_associated).splice(0,25);
-// console.log(link_associated);
-d3.select(".mousemover_violation_list")
-  .selectAll('li')
-  .remove()
-var item = d3.select('.mousemover_violation_list')
-  .selectAll('li')
-  .data(partial)
-  .enter()
-  .append('li')
-  .transition().duration(10/2)
-  .style("opacity", 0)
-  .transition().duration(1000/2)
-  .style("opacity", 1)
-  .attr('class','mousemover_violation_item')
-  .text(function(d){ return data[+d.target.id].name } )
-
-  $('#mousemover_violation_button').click(function(){
-    d3.select(".mousemover_violation_list")
-      .selectAll('li')
-      .remove()
-    var item = d3.select('.mousemover_violation_list')
-      .selectAll('li')
-      .data(link_associated)
-      .enter()
-      .append('li')
-      .transition().duration(10/2)
-      .style("opacity", 0)
-      .transition().duration(1000/2)
-      .style("opacity", 1)
-      .attr('class','mousemover_violation_item')
-      .text(function(d){ return data[+d.target.id].name } )
-  })
-/**************************************** restaurant list end ************************************************/
-  $('#infoPanel_Data_name').css('display','none')
-  $('#infoPanel_Location').css('visibility','hidden')
-  $('#infoPanel_Category').css('visibility','hidden')
-  $('#infoPanel_LastInspect').css('visibility','hidden')
-  $('.dark_side').css('display','none')
-  $('.rating').css('display','none')
-  d3.select("#mapbox").transition().duration(10/2)
+  /**************************************** restaurant list ************************************************/
+  var partial;
+  partial = _.compact(link_associated).splice(0,25);
+  // console.log(link_associated);
+  d3.select(".mousemover_violation_list")
+    .selectAll('li')
+    .remove()
+  var item = d3.select('.mousemover_violation_list')
+    .selectAll('li')
+    .data(partial)
+    .enter()
+    .append('li')
+    .transition().duration(10/2)
     .style("opacity", 0)
     .transition().duration(1000/2)
     .style("opacity", 1)
-  $('#mapbox').css('display','none')
-  // console.log(code_correspond_description[id]);
+    .attr('class','mousemover_violation_item')
+    .text(function(d){ return data[+d.target.id].name } )
+
+    $('#mousemover_violation_button').click(function(){
+      d3.select(".mousemover_violation_list")
+        .selectAll('li')
+        .remove()
+      var item = d3.select('.mousemover_violation_list')
+        .selectAll('li')
+        .data(link_associated)
+        .enter()
+        .append('li')
+        .transition().duration(10/2)
+        .style("opacity", 0)
+        .transition().duration(1000/2)
+        .style("opacity", 1)
+        .attr('class','mousemover_violation_item')
+        .text(function(d){ return data[+d.target.id].name } )
+    })
+  /**************************************** restaurant list end ************************************************/
+    $('#infoPanel_Data_name').css('display','none')
+    $('#restaurant_link').css('display','none')
+    $('#price_tier').css('display','none')
+    $('#likes').css('display','none')
+    $('#infoPanel_Location').css('visibility','hidden')
+    $('#infoPanel_Category').css('visibility','hidden')
+    $('#infoPanel_LastInspect').css('visibility','hidden')
+    $('.dark_side').css('display','none')
+    $('.rating').css('display','none')
+    d3.select("#mapbox").transition().duration(10/2)
+      .style("opacity", 0)
+      .transition().duration(1000/2)
+      .style("opacity", 1)
+    $('#mapbox').css('display','none')
+    // console.log(code_correspond_description[id]);
 }
 
 function drawLink(d){
@@ -507,8 +543,6 @@ function zoom_init(arg_k, arg_x, arg_y){
 
 function search_res_append(_data){
 
-
-
   $('.popup_button').click(function(){
     $('.popup_button').css('display','none')
     $('.slide').css('right','-23.063rem')
@@ -537,7 +571,7 @@ function search_res_append(_data){
       $('#search_list li').hover(function(){
         $(this).css('background-color',"#ffffff");
         var cores = _data[$(this).index()];
-        $(this).append( $( "<p>"+ cores.address +"</p>" ) );
+        $(this).append( $( "<span>"+ " Address: "+cores.address +"</span>" ) );
         $(this).children().animate({opacity:1},500);
       },function(){
         $(this).css('background-color',"");
@@ -545,11 +579,6 @@ function search_res_append(_data){
       })
     /************************* line chart & click li ******************************/
     $('#search_list li').click(function(){
-
-      $('.mask-on').css('background','-moz-linear-gradient(left,rgba(0, 0, 0, 0.50) 0%,rgba(0, 0, 0, 0.50) 37%,rgb(27, 31, 58) 80%)')
-      $('.mask-on').css('background','-webkit-linear-gradient(left, rgba(0, 0, 0, 0.50) 0%,rgba(0, 0, 0, 0.50) 37%,rgb(27, 31, 58) 80%)')
-      $('.mask-on').css('background','linear-gradient(to left, rgba(0, 0, 0, 0.50) 0%,rgba(0, 0, 0, 0.50) 37%,rgb(27, 31, 58) 80%)')
-      $('.mask-on').css('z-index','1');
 
       var cores = _data[$(this).index()];
       var margin = 100;
@@ -605,6 +634,7 @@ function search_res_append(_data){
           .attr('y',15)
           .attr("text-anchor", "start")
           .text("One Year Ago");
+
           var for_y_axis = d3.select('.axis_search_x path').attr('d').match(/H[1-9].{1,}V/g);
           d3.select('.axis_search_x').append('text')
           .attr('x',parseFloat(for_y_axis[0].split("H")[1]))
@@ -616,23 +646,70 @@ function search_res_append(_data){
           var y_ax = temp_svg_search_g
           .append("g")
           .attr("transform", "translate(" +parseFloat(d3.select('.axis_search_x path').attr('d').match(/[^M]+.,/g))+ ",0)")
-          .call(d3.axisLeft(y))
+          .call(d3.axisLeft(y).tickValues([0, 10, 13, 20, 27, 30, 40, 50, 60, 70, 80]))
           .attr('class','axis_search_y')
           .select('.domain')
           .remove();
 
           d3.select('.axis_search_y .tick')
           .remove();
+          /******************** grade division *******************/
+          d3.selectAll('.axis_search_y .tick').selectAll(function(d,i){
+
+            if(i ==1 || i == 3){
+              d3.select(this).select('line')
+                .attr("stroke-dasharray", "2,10")
+                .attr('x2',d3.select('.svg_search').attr('width') - 72)
+                if(i ==1){grade_level = "A"}
+                if(i ==3){grade_level = "B"}
+              d3.select(this).select('text')
+                  .text('GRADE ' + grade_level+ ' Level')
+                  .attr('text-anchor','middle')
+                  .attr('x',d3.select(this).select('line').attr('x2') / 2)
+                  .attr('y',9)
+                  .style('z-index',100000)
+            }
+            if(i == 9 ){
+              d3.select(this).select('line')
+                .attr("stroke-dasharray", "2,10")
+                .attr('x2',d3.select('.svg_search').attr('width') - 72)
+              d3.select(this).append('text')
+                  .text('GRADE ' + "C"+ ' Level')
+                  .attr('text-anchor','middle')
+                  .attr('x',d3.select(this).select('line').attr('x2') / 2)
+                  .attr('y',10)
+                  .style('z-index',100000)
+            }
+          })
 
           d3.select('.axis_search_y')
           .append("text")
-          .attr("fill", "#000")
+          .attr("fill", "#fff")
           .attr("transform", "rotate(-90)")
           .attr("y", 6)
           .attr("dy", "1.71em")
           .attr('x','-14')
           .attr("text-anchor", "end")
           .text("Sanitation Score");
+
+          var text_off_chart = d3.select('.svg_search').append('g');
+          text_off_chart.append('text')
+              .attr("fill", "#fff")
+              .attr('x',d3.select('.svg_search').attr('width') -50 )
+              .attr('y',d3.select('.svg_search').attr('height') * 0.925 )
+              .attr("font-family", "sans-serif")
+              .attr("text-anchor", "end")
+              .text('Select multiple restaurants to compare')
+
+          text_off_chart.append('text')
+              .attr("fill", "#fff")
+              .attr('x',d3.select('.svg_search').attr('width') -50 )
+              .attr('y',d3.select('.svg_search').attr('height') *0.925 +10 )
+              .attr("font-family", "sans-serif")
+              .attr('font-size',"10")
+              .attr("text-anchor", "end")
+              .text('the line chart shows historical inspection record with in one year')
+
 
           toogle_axis_search = false;
       }
@@ -778,6 +855,25 @@ function draw_wheel(){
       $(".search").toggleClass("close");
       $(".input").toggleClass("square");
       if ($('.search').hasClass('close')){
+              $('.search_exit_button').css('display','block')
+              add_search_exit(); //only once
+              $('.search_exit_button').click(function(){
+                expand();
+              })
+
+              $('.mask-on').css('background','-moz-linear-gradient(left,rgba(0, 0, 0, 0.7) 0%,rgba(0, 0, 0, 0.7) 37%,rgb(27, 31, 48) 80%)')
+              $('.mask-on').css('background','-webkit-linear-gradient(left, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.7) 37%, rgb(27, 31, 48) 80%)')
+              $('.mask-on').css('background','linear-gradient(to left, rgba(0, 0, 0, 0.7) 0%,rgba(0, 0, 0, 0.7) 37%,rgb(27, 31, 48) 80%)')
+              $('.mask-on').css('z-index','1');
+              $('#tooltip_wheel').css('display','none')
+              $('#tooltip_search').css('display','block').css('bottom',function(){return 50;})
+              d3.select(".mask-on")
+                .transition()
+                .ease(d3.easeQuad)
+                .duration(100)
+                .style("opacity", 1)
+
+
               $('input').focus();
               $('#search_list_container').css({'opacity': "1","visibility":''});
               toogle_axis_search = true;
@@ -812,29 +908,33 @@ function draw_wheel(){
       }
       else{
               $('input').blur();
-              $('.mask-on').css('background','')
-              $('.mask-on').css('z-index','-1');
+              $('.search_exit_button').css('display','none')
+
+              d3.select(".mask-on")
+                .transition()
+                .duration(500)
+                .style("opacity", -1)
+                .on('end',function(){
+                  $('.mask-on').css('background','');
+                  $('.mask-on').css('z-index','-1');})
+                $('#tooltip_wheel').css('display','block')
+                $('#tooltip_search').css('display','none')
 
               $('#search_list_container').css({'opacity': "0","visibility":'hidden'});
               d3.selectAll('.svg_search').remove();
               svg_search_toggle = true;
-
       }
     }
 
-    $("#content").submit(function(e) {
-        e.preventDefault();
-    });
+    $("#content").submit(function(e){e.preventDefault()});
 
     $('#search_button').on('click', expand);
 
     $('.input').keyup(function(e){
-      console.log(this.value);
       var search_res = fuse.search(this.value);
       var trim = search_res.splice(0,15);
       console.log(trim);
       search_res_append(trim);
-
     })
     /*****************************************************************
     * init wheel position;
@@ -974,64 +1074,69 @@ function draw_wheel(){
     }
 
     function button_default_color(){
-      $(this).css('background-color','#e96043');
-      $('.button_last_inspection_color').animate({
-			     backgroundColor: '#000222'
-	    }, 500 );
+      // $(this).css('background-color','#e96043');
+      // $('.button_last_inspection_color').animate({
+			    //  backgroundColor: '#000222'
+	    // }, 500 );
       toggle_color_for_last_inspect = false;
       ticked();
     }
 
+
     function clicked(){
       if(!$(".tgl-skewed").is(':checked')){
         $(".tgl-skewed").prop('checked',true)
-		$('.slide').css('right','2rem')
-		$('.slide').css('background-color',"rgb(27, 31, 58)")
-		$('.slide').css('opacity',"0.92")
-		$('.slide').css('box-shadow',"-31px 8px 180px 2px rgba(14, 16, 33, 0.5)")
+    		$('.slide').css('right','2rem')
+    		$('.slide').css('background-color',"rgb(27, 31, 58)")
+    		$('.slide').css('opacity',"0.92")
+    		$('.slide').css('box-shadow',"-31px 8px 180px 2px rgba(14, 16, 33, 0.5)")
 
-    $('#positive_button').css('text-decoration','underline')
-    $('#meh_button').css('text-decoration','none')
-    $('#negative_button').css('text-decoration','none')
+        $('#positive_button').css('text-decoration','underline')
+        $('#meh_button').css('text-decoration','none')
+        $('#negative_button').css('text-decoration','none')
 
-		$('.mask-on').css('background-color','rgba(0, 0, 0, 0.17)')
-		$('.mask-on').css('z-index','1')
-		$('.popup_button').css('display','block')
+    		$('.mask-on').css('background-color','rgba(0, 0, 0, 0.17)')
+        $('.mask-on').css('opacity','1')
+    		$('.mask-on').css('z-index','1')
+    		$('.popup_button').css('display','block')
 
-		$('.popup_button').click(function(){
-			$('.popup_button').css('display','none')
-			$('.mask-on').css('z-index','-1000');
-			$('.mask-on').css('background-color','')
-			$('.slide').css('right','-23.063rem')
-			$('.popup_button').css('display','none')
-			$('.slide').css('opacity',"")
-			$('.slide').css('box-shadow',"")
-			$('.slide').css('background-color',"")
-			toggle_mv = true;
-			$(".tgl-skewed").prop('checked',false)
-		})
-		$('.mask-on').click(function() {
-  			$('.mask-on').css('z-index','-1000');
-			$('.mask-on').css('background-color','')
-			$('.slide').css('right','-23.063rem')
-			$('.popup_button').css('display','none')
-			$('.slide').css('opacity',"")
-			$('.slide').css('box-shadow',"")
-			$('.slide').css('background-color',"")
-			toggle_mv = true;
-			$(".tgl-skewed").prop('checked',false)
-		});
-		Mousetrap.bind(['esc'], function() {
-			$('.mask-on').css('z-index','-1000');
-	  		$('.mask-on').css('background-color','')
-	  		$('.slide').css('right','-23.063rem')
-			$('.popup_button').css('display','none')
-	  		$('.slide').css('opacity',"")
-	  		$('.slide').css('box-shadow',"")
-			$('.slide').css('background-color',"")
-	  		toggle_mv = true;
-	  		$(".tgl-skewed").prop('checked',false)
-		});
+    		$('.popup_button').click(function(){
+          $('.mask-on').css('opacity','0')
+    			$('.popup_button').css('display','none')
+    			$('.mask-on').css('z-index','-1000');
+    			$('.mask-on').css('background-color','')
+    			$('.slide').css('right','-23.063rem')
+    			$('.popup_button').css('display','none')
+    			$('.slide').css('opacity',"")
+    			$('.slide').css('box-shadow',"")
+    			$('.slide').css('background-color',"")
+    			toggle_mv = true;
+    			$(".tgl-skewed").prop('checked',false)
+    		})
+    		$('.mask-on').click(function() {
+          $('.mask-on').css('opacity','0')
+      		$('.mask-on').css('z-index','-1000');
+    			$('.mask-on').css('background-color','')
+    			$('.slide').css('right','-23.063rem')
+    			$('.popup_button').css('display','none')
+    			$('.slide').css('opacity',"")
+    			$('.slide').css('box-shadow',"")
+    			$('.slide').css('background-color',"")
+    			toggle_mv = true;
+    			$(".tgl-skewed").prop('checked',false)
+    		});
+    		Mousetrap.bind(['esc'], function() {
+    		  $('.mask-on').css('z-index','-1000');
+      		$('.mask-on').css('background-color','')
+          $('.mask-on').css('opacity','0')
+      		$('.slide').css('right','-23.063rem')
+    		  $('.popup_button').css('display','none')
+      		$('.slide').css('opacity',"")
+      		$('.slide').css('box-shadow',"")
+    		  $('.slide').css('background-color',"")
+      		toggle_mv = true;
+      		$(".tgl-skewed").prop('checked',false)
+    		});
       }
 
       if(toggle_mv){
@@ -1046,8 +1151,7 @@ function draw_wheel(){
     *
     *****************************************************************/
     function mv(){
-		// console.log("a");
-	 if(normal){
+	    if(normal){
       if(toggle_mv == true){
         var p = d3.mouse(this); //coordinates
         var x = d3.event.x;
@@ -1195,11 +1299,10 @@ function draw_wheel(){
 	  	max = Math.floor(max);
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	  }
-	  if(tick_increment > getRandomIntInclusive(20,35)){
-		  simulation.stop();
-	  }
-	}
-
+	   if(tick_increment > getRandomIntInclusive(20,35)){
+		     simulation.stop();
+	   }
+	   }
 
 	  if(grid){
 	      context.save();
@@ -1262,14 +1365,13 @@ function draw_wheel(){
 
 
   $('.test').click(function(){
+    d3.selectAll('.axis').style('visibility','');
+    d3.selectAll('#axis_y').style('visibility','');
+    d3.selectAll('.axis_x_price').style('visibility','hidden');
+    d3.selectAll('.axis_y_price').style('visibility','hidden');
+
     $(this).children().children().addClass('active')
-    // $('.active').animate({
-  //  opacity: 0.25,
-  //  left: "+=50",
-  //  height: "toggle"
- // }, 5000, function() {
-   // Animation complete.
- // });
+    $('#plot_inspection').removeClass('active')
 
     svg = d3.select('body').append('svg').attr('class','sub_visual')
       .attr('width',width)
@@ -1689,11 +1791,18 @@ function draw_wheel(){
     }
   }); //button_grid
 
-
-
   $('.test_two').click(function(){
+    $(this).children().children().addClass('active')
     $('#plot_rating').removeClass('active')
+
     $('#tooltip_wheel').css('display','block')
+    d3.select("#tooltip_wheel")
+      .transition().duration(10/2)
+      .style("opacity", 0)
+      .transition()
+      .ease(d3.easeQuad)
+      .duration(1000)
+      .style("opacity", 1)
     $('#tooltip_plot_grade_rating').css('display','none')
     d3.selectAll('.temporary').remove();
     d3.selectAll('.sub_visual').remove();
@@ -1751,14 +1860,100 @@ function draw_wheel(){
        }
    })
    select_canvas.on('mousemove',mv);
-
-
-
- });
-
-
-
+  });
 
 }
+
+$('.test_three').click(function(){
+  d3.selectAll('.axis').style('visibility','hidden');
+  d3.selectAll('#axis_y').style('visibility','hidden');
+  d3.selectAll('.axis_x_price').style('visibility','');
+  d3.selectAll('.axis_y_price').style('visibility','');
+  /********************************** compute scatter plot ****************************************/
+  var change_axis = d3.select('.sub_visual')
+  //x axis
+  var vio_s = graph.nodes.map(function(d){if(!isNaN(+d.id)){ return data[+d.id].violation.recentScore;}});
+  vio_s.splice(0,78);
+  var vio_s_max = d3.max(vio_s)
+  var vio_s_min = d3.min(vio_s)
+  var linearScaleX = d3.scaleLinear()
+    .domain([vio_s_min,vio_s_max])
+    .range([150 + 25, window.innerWidth - 400]);
+  //y axis
+  var price_tier_plot =graph.nodes.map(function(d){if(!isNaN(+d.id)){return data[+d.id].price;}})
+  price_tier_plot.splice(0,78);
+  var price_max = d3.max(price_tier_plot)
+  var price_min = d3.min(price_tier_plot)
+  var linearScaleY = d3.scaleLinear()
+    .domain([price_max,price_min])
+    .range([0 + 35, window.innerHeight - 35]);
+
+  graph.nodes.forEach(function(d){
+    if(d.gr == "r"){
+      d.x_draw = 0;
+      d.y_draw = 0;
+      d.circle_size = 0;
+      d.circle_opacity =0;
+      d.x_price_scatter = linearScaleX(data[+d.id].violation.recentScore);
+      d.y_price_scatter = linearScaleY(data[+d.id].rating);
+      d.color = '';
+    }
+  });
+
+  var gx = change_axis.append('g')
+    .attr('class','axis_x_price')
+    .attr("transform", "translate(0," + (window.innerHeight -25) + ")")
+    .call(customXAxis)
+    .transition().duration(10/2)
+    .style("opacity", 0)
+    .transition()
+    .ease(d3.easeQuad)
+    .duration(4000)
+    .style("opacity", 1)
+
+  function customXAxis(g) {
+      g.call(d3.axisTop(linearScaleX));
+      // g.selectAll('.tick line').attr('y2','-'+(window.innerHeight -70)).attr("stroke-dasharray", "2,10").style('z-index',3);
+      // g.selectAll(".tick text").attr("x", 10).attr("dy", 4);
+
+      // g.append('text')
+        // .attr('y',15)
+        // .attr('x',parseFloat(g.select('path').attr('d').match(/[^M].+,/g)))
+        // .attr('text-anchor','start')
+        // .style('font-size','0.558rem')
+        // .text('Sanitation Score')
+    }
+
+  var gy = change_axis.append('g')
+    .attr('class','axis_y_price')
+    .attr("transform", "translate("+165 +",0)")
+    .call(customYAxis)
+    .transition().duration(10/2)
+    .style("opacity", 0)
+    .transition()
+    .ease(d3.easeQuad)
+    .duration(4000)
+    .style("opacity", 1)
+
+  function customYAxis(g){
+      g.call(d3.axisLeft(linearScaleY)
+        .tickValues([1,2,3,4])
+      )
+      g.select(".domain").remove();
+
+      g.selectAll(".tick text").attr("y", -10).attr("x", 0).style('font-size','.438rem');
+      //
+      // g.select('.tick')
+      //   .append('text')
+      //   .attr('y',g.select('.tick').select('text').attr('y') -25)
+      //   .attr('x',g.select('.tick').select('line').attr('x2'))
+      //   .attr('dy','0.32em')
+      //   .attr('text-anchor','start')
+      //   .style('font-size','0.558rem')
+      //   .text('Foursquare Rating')
+    }
+
+
+})
 
 setup(draw_wheel);

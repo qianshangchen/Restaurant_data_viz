@@ -24,22 +24,18 @@
 
 <body>
   <div id = "infoPanel_container">
-<!--     <!~~ heading ~~>
-    <div class="header_container">
-      <h1 id="main_heading">The price of convenience</h1>
-      <p id="sub_heading">Storytelling on NYC Restaurant</p>
-    </div>
 
-    <!~~ button ~~>
+
+  <!--   <!~~ <!~~ button ~~> ~~>
     <div class='button-group'>
       <h2>
         show relation base on recent inspection
       </h2>
-      <!~~*************************** button 1 ***************************~~>
+      <!~~ <!~~*************************** button 1 ***************************~~> ~~>
       <button class='button_grade_color button_style'>
         <span>Grade</span>
       </button>
-      <!~~ ** tooltips ** ~~>
+      <!~~ <!~~ ** tooltips ** ~~> ~~>
       <div class="button_grade_color_tooltips" style="display: none;">
         sorts <u>grade</u> of each restaurant.</br>
         <div style="border-radius:20px;background-color:#cd772c;position:relative;width:10px;height:10px; display: inline-block;" ></div>
@@ -54,14 +50,14 @@
         <p style="color:#970ac6;position:relative; height:10px; margin-top: 9.4%" >TEXT</p>
         <i style="text-align:right; float:right; margin-top:-12%;font-size:0.8em; ">Sanitation Problem Category</i>
       </div>
-      <!~~*************************** button 2 ***************************~~>
+      <!~~ <!~~*************************** button 2 ***************************~~> ~~>
       <button class='button_last_inspection_color button_style'>
         <span>latest inspection</span>
       </button>
-      <!~~  tooltips
+      <!~~ <!~~  tooltips
       *
       *
-      ~~>
+      ~~> ~~>
       <div class="button_last_inspection_color_tooltips" style="display: none;" >
         sorts <u>latest inspection date</u> from today of each restaurant.
         <div style="height: 16px; text-align:center;border-radius:20px;
@@ -84,22 +80,8 @@
         <i style="text-align:left ; ">closest from today</i>
         <i style="text-align:right; float:right">furthest from today</i>
       </div>
-    </div>
-    <!~~ button end ~~>
+    </div> -->
 
-
-
-    <hr size="1.2" noshade color="white">
- -->
- <div class = 'indicator_led'>
-   <ul class="tg-list">
-	 <li class="tg-list-item">
-	   <input class="tgl tgl-skewed" id="cb3" type="checkbox"/>
-	   <label class="tgl-btn" data-tg-off="OFF" data-tg-on="ON" for="cb3"></label>
-	 </li>
-   </ul>
-   <p>lock restaurant</p>
- </div>
  <button class="test" >XXXXXX</button>
  <button class="test_two" >XXXXXX</button>
 	<div class="slide">
@@ -109,6 +91,15 @@
 	      <p id="infoPanel_vio_code"> </p>
 	      <p id="infoPanel_vio_des"></p>
 	      <p id="infoPanel_Data_name"></p>
+        <a target="_blank" href="a" id='restaurant_link_url'>
+        <img src="assets/link_button.png" alt="tooltips" id='restaurant_link'>
+        </a>
+        <p id="price_tier">
+          Price tier: unknown
+        </p>
+        <p id="likes">
+          likes: unknown
+        </p>
 		  <hr id="hr_one" size="2" noshade color="white">
 
 		  <div class="basic_info_detailed">
@@ -120,7 +111,6 @@
 		  </div>
 		  <hr id="hr_two" size="1" noshade color="white">
 		  <div id="mapbox">
-			  <!-- <img id ="map_repleaser" src="assets/maprepleaser.jpeg" style="position:absolute; bottom:0"/> -->
         <div id="mapbox_blocker">
 
         </div>
@@ -174,7 +164,7 @@
 	<div class='mask-on'></div>
   <img src="assets/tooltip_wheel.png" alt="tooltips" id='tooltip_wheel'>
   <img src="assets/tooltip_plot_grade_rating.png" alt="tooltips" id='tooltip_plot_grade_rating'>
-
+  <img src="assets/restaurant_search.png" alt="tooltips" id='tooltip_search'>
   <!-- nav start -->
 
   <div id = "nav_container">
@@ -185,8 +175,6 @@
         <button type="reset" class="search" id="search_button"></button>
         <div id="search_list_container" style="visibility: hidden">
         <ul id="search_list">
-          <!-- <li><div class="search_item">aa</div></li> -->
-          <!-- <li><div class="search_item">bbb gg</div></li> -->
         </ul>
         </div>
       </form>
@@ -202,6 +190,11 @@
       <span class="filter test_two">
         <p>
           <a id='plot_inspection'>Universe of restaurant</a>
+        </p>
+      </span>
+      <span class="filter test_three">
+        <p>
+          <a id='plot_inspection'>price N' sanitation</a>
         </p>
       </span>
     </div>

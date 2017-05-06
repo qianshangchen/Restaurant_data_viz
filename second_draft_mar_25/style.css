@@ -850,16 +850,37 @@ svg{
 
 #header{
   position: relative;
-  line-height:1.5;
   text-align: center;
   font-family: futura;
   font-size: 1.206rem;
   color: white;
 }
+#header_second{
+  position: relative;
+  text-align: center;
+  font-family: Miller-DisplayItalic;
+  font-size: 9px;
+  color: white;
+  top: -.5%;
+}
+#hr_bar_search_above{
+  margin: auto 6.625%;
+  position: relative;
+  top: 4.5%;
+}
+#head_search{
+  position: relative;
+  text-align: center;
+  font-family: Miller-Text;
+  font-size: 0.75rem;
+  color: white;
+  top: 5.3%;
+}
+
 /*****************************************************************/
 #content {
-  position: absolute;
-  top: 17%;
+  position: relative;
+  top: 6.2%;
   left: 141.359px;
 }
 
@@ -935,7 +956,7 @@ input {
   position: absolute;
   width: 107px;
   height: 1px;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.3);
   margin-top: 15px;
   margin-left: -121px;
   -webkit-transition: 0.2s ease-in-out;
@@ -1018,6 +1039,7 @@ padding-left: 0;
 position: relative;
 top: -11px;
 right: 132px;
+width: 142px;
 z-index: 1000;
 }
 .search_item{
@@ -1042,24 +1064,41 @@ z-index: 1000;
 /*********************************************************/
 
 #hr_bar_one{
-  margin: auto 0.625rem;
+  margin: auto 6.625%;
   position: relative;
-  top: 16.38%;
+  top: 7.7%;
 }
-#hr_bar_two{
-  margin: auto 0.625rem;
+
+#header_filter_univ{
   position: relative;
-  top: 36.38%;
+  text-align: center;
+  font-family: Miller-Text;
+  font-size: 0.75rem;
+  color: white;
+  top: 9.4%;
+}
+
+#hr_bar_two{
+  margin: auto 6.625%;
+  position: relative;
+  top: 15%;
 
 }
+#filtering_univ_container{
+  position: relative;
+  top: 11.2%;
+}
+
 .filter{
   height: 100%;
+  position: relative;
 }
 .filter p{
-  /*height: 100%;*/
-  margin-top: 200px; /* temporary for button*/
+
+
   font-family: Miller-TextBoldItalic;
   font-size: 0.725rem;
+  line-height: 2.3;
   color: white;
   position: relative;
   text-align: center;
@@ -1083,15 +1122,13 @@ z-index: 1000;
 .active::before, .active::after {
   content: '';
   position: absolute;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.3);
   z-index: -1;
-  height: 5%;
+  height: 1px;
 }
 
 .active::before {
   width: 0%;
-  /*left: 0;*/
-  /*bottom: 0;*/
   -webkit-transition: width ease 0.4s;
   transition: width ease 0.4s;
 }
@@ -1099,7 +1136,60 @@ z-index: 1000;
 .active::after {
   width: 100%;
   left: 0;
-  bottom: -5px;
+  bottom: 0px;
   -webkit-transition: all ease 0.6s;
   transition: all ease 0.6s;
+}
+#header_sorting{
+  position: relative;
+  text-align: center;
+  font-family: Miller-Text;
+  font-size: 0.75rem;
+  color: white;
+  top: 16.9%;
+}
+
+#x_axis_head{
+  position: relative;
+  font-family: Miller-Text;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  top: 20.5%;
+  font-weight: 100;
+}
+#sorting_container_x{
+  position: relative;
+  top: 20.3%
+}
+
+#y_axis_head{
+  position: relative;
+  font-family: Miller-Text;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  top: 20.5%;
+  font-weight: 100;
+}
+
+#sorting_container_y{
+  position: relative;
+  top: 20.3%
+}
+
+#hr_bar_map_above{
+  margin: auto 6.625%;
+  position: relative;
+  top: 20.7%;
+}
+
+#map_view_container{
+  position: relative;
+  top: 21%;
+}
+.fb-like{
+  position: relative;
+  margin: auto 14.825%;
+
 }

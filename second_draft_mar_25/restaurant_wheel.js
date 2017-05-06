@@ -1,3 +1,62 @@
+var toggle_axis_price = true;
+function axis_price(change_axis,linearScaleX,linearScaleY){
+  if(toggle_axis_price){
+    //add axis to svg
+    var gx = change_axis.append('g')
+      .attr('class','axis_x_price')
+      .attr("transform", "translate(0," + (window.innerHeight -25) + ")")
+      .call(customXAxis)
+      .transition().duration(10/2)
+      .style("opacity", 0)
+      .transition()
+      .ease(d3.easeQuad)
+      .duration(4000)
+      .style("opacity", 1)
+    function customXAxis(g) {
+        g.call(d3.axisTop(linearScaleX).tickValues([13, 27]));
+        g.selectAll('.tick line').attr('y2','-'+(window.innerHeight -70)).attr("stroke-dasharray", "2,10").style('z-index',3);
+        g.selectAll(".tick text").attr("x", 10).attr("dy", 4);
+
+        g.append('text')
+          .attr('y',15)
+          .attr('x',parseFloat(g.select('path').attr('d').match(/[^M].+,/g)))
+          .attr('text-anchor','start')
+          .style('font-size','0.558rem')
+          .text('Sanitation Score')
+      }
+
+    var gy = change_axis.append('g')
+      .attr('class','axis_y_price')
+      .attr("transform", "translate("+165 +",0)")
+      .call(customYAxis)
+      .transition().duration(10/2)
+      .style("opacity", 0)
+      .transition()
+      .ease(d3.easeQuad)
+      .duration(4000)
+      .style("opacity", 1)
+    function customYAxis(g){
+        g.call(d3.axisLeft(linearScaleY)
+          .tickValues([0,1,2,3,4])
+        )
+        g.select(".domain").remove();
+
+        g.selectAll(".tick text").attr("y", -10).attr("x", 0).style('font-size','.438rem').selectAll(function(d,i){
+          d3.select(this).attr('text-anchor','start').style('font-size',12)
+          if(i == 0){d3.select(this).text("unknown price tier")}
+          if(i == 1){d3.select(this).text("$")}
+          if(i == 2){d3.select(this).text("$$")}
+          if(i == 3){d3.select(this).text("$$$")}
+          if(i == 4){d3.select(this).text("$$$$")}
+        });
+        g.selectAll(".tick line").remove();
+    }
+    toggle_axis_price = false;
+  }
+}
+
+var third_button_clicked = false;
+
 var temp_svg_search, temp_svg_search_g,gradient,click_t = true,toggle_stroke = false,
 svg_search_toggle = true,
 toogle_axis_search = false,
@@ -777,7 +836,6 @@ function search_res_append(_data){
 
 
 function setup(cb){
-
     $('.slide').css('bottom',function(){
       return (window.innerHeight - parseFloat( $(".slide").css("height")) ) * (1-0.618)
     })
@@ -796,6 +854,8 @@ function setup(cb){
     height = canvas.height;
     transform = d3.zoomIdentity;
 
+    /******** nav bar universe *********/
+    $('#plot_inspection').addClass('active');
 
     /*****************************************************************
     * configure simulation;
@@ -876,6 +936,7 @@ function draw_wheel(){
 
               $('input').focus();
               $('#search_list_container').css({'opacity': "1","visibility":''});
+              $('#search_list').css('height','')
               toogle_axis_search = true;
 
               temp_svg_search = d3.select('body').append('svg').attr('width',window.innerWidth-((23*16)+150)).attr('height',window.innerHeight).attr('class','svg_search');
@@ -921,6 +982,7 @@ function draw_wheel(){
                 $('#tooltip_search').css('display','none')
 
               $('#search_list_container').css({'opacity': "0","visibility":'hidden'});
+              $('#search_list').css('height',0)
               d3.selectAll('.svg_search').remove();
               svg_search_toggle = true;
       }
@@ -991,97 +1053,6 @@ function draw_wheel(){
       .on("wheel.zoom", null)
       .call(zoom.scaleTo, transform.k -=.1);
     });
-
-    /*****************************************************************
-    * button control
-    *
-    *****************************************************************/
-    $('.button_last_inspection_color').each(function(){
-      $(this).qtip({
-          content: {
-              text: $(this).next(".button_last_inspection_color_tooltips")
-          },
-          position: {
-              my: 'center bottom swap',
-              at: 'bottom center',
-              target: 'mouse',
-              adjust: { x: 0, y: 65 }
-          },
-          show: {
-              effect: function() {
-                  $(this).fadeTo(200, 1);
-              }
-          },
-          hide: {
-              effect: function() {
-                $(this).fadeOut(200);
-              }
-          },
-          style: {
-              classes: 'qtip-tipsy'
-          }
-      });
-    });
-
-    $('.button_grade_color').each(function(){
-      $(this).qtip({
-          content: {
-              text: $(this).next(".button_grade_color_tooltips")
-          },
-          position: {
-              my: 'center bottom swap',
-              at: 'bottom center',
-              target: 'mouse',
-              adjust: { x: 0, y: 80 }
-          },
-          show: {
-              effect: function() {
-                  $(this).fadeTo(200, 1);
-              }
-          },
-          hide: {
-              effect: function() {
-                $(this).fadeOut(200);
-              }
-          },
-          style: {
-              classes: 'qtip-tipsy'
-          }
-      });
-    });
-
-    $( ".button_grade_color").css('background-color','#e96043')
-    $( ".button_last_inspection_color" ).click(button_change_color);
-    $(".button_grade_color").click(button_default_color)
-    function button_change_color(){
-      $(this).css('background-color','#e96043');
-      $('.button_grade_color').animate({
-			     backgroundColor: '#000222'
-	    }, 500 );
-      // .css('background-color','#000222');
-      /* hard coded here, for the performance*/
-      var max = 1487998800000,
-          min = 1443499200000,
-          color_for_last_inspect = d3.scaleLinear()
-          .domain([min, max])
-          .range(["red", "white"]); //first parameter is the latest inspect, second one is the oldest.
-          // .range(["brown", "steelblue"]);
-      data.forEach(function(d){
-          d.violation.color_for_last_inspect = color_for_last_inspect(Date.parse(d.violation.recentTime));
-      });
-      toggle_color_for_last_inspect = true;
-      ticked();
-    }
-
-    function button_default_color(){
-      // $(this).css('background-color','#e96043');
-      // $('.button_last_inspection_color').animate({
-			    //  backgroundColor: '#000222'
-	    // }, 500 );
-      toggle_color_for_last_inspect = false;
-      ticked();
-    }
-
 
     function clicked(){
       if(!$(".tgl-skewed").is(':checked')){
@@ -1287,7 +1258,6 @@ function draw_wheel(){
     //button for last inspect color
     if(toggle_color_for_last_inspect == true){
       graph.nodes.forEach(drawNode_button_last_inspect);
-      // toggle_color_for_last_inspect = false;
     }
     context.restore();
 
@@ -1331,16 +1301,14 @@ function draw_wheel(){
 
     	  	      context.moveTo(d.x_draw +
                   // (3 / transform.k)
-                  d.circle_size
-                  * transform.k
+                  d.circle_size * transform.k
                   ,
                   d.y_draw
                 );
     	  	      context.arc(d.x_draw,
                   d.y_draw,
                   // (3 / transform.k)
-                  d.circle_size
-                  * transform.k
+                  d.circle_size * transform.k
                   ,
                   0,
                   2 * Math.PI
@@ -1364,18 +1332,42 @@ function draw_wheel(){
   } //ticked
 
 
-  $('.test').click(function(){
+  $('.test').click(click_for_test_n_following); //button_grid AKA test
+
+  $('.following_test').click(click_for_test_n_following);
+
+  function click_for_test_n_following(){
     d3.selectAll('.axis').style('visibility','');
     d3.selectAll('#axis_y').style('visibility','');
-    d3.selectAll('.axis_x_price').style('visibility','hidden');
-    d3.selectAll('.axis_y_price').style('visibility','hidden');
 
-    $(this).children().children().addClass('active')
-    $('#plot_inspection').removeClass('active')
-
-    svg = d3.select('body').append('svg').attr('class','sub_visual')
-      .attr('width',width)
-      .attr('height',height)
+    $('#plot_rating').addClass('active')
+    $('#plot_rating_following').addClass('active');
+    $('#plot_inspection').removeClass('active');
+    $('#plot_price').removeClass('active');
+    if(third_button_clicked){
+      d3.selectAll(".axis_x_price")
+        .transition()
+        .ease(d3.easeQuad)
+        .duration(1000)
+        .style("opacity", 0)
+        .on('interrupt',function(){
+          d3.active(this).style('visibility','hidden');
+        });
+      d3.selectAll(".axis_y_price")
+        .transition()
+        .ease(d3.easeQuad)
+        .duration(1000)
+        .style("opacity", 0).on('interrupt',function(){
+          d3.active(this).style('opacity',1).style('visibility','hidden');
+        });
+    }
+    if(third_button_clicked){
+      svg = d3.select('.sub_visual');
+    }else{
+      svg = d3.select('body').append('svg').attr('class','sub_visual')
+        .attr('width',width)
+        .attr('height',height)
+    };
     $('#tooltip_wheel').css('display','none')
 
 
@@ -1410,6 +1402,8 @@ function draw_wheel(){
       .range([0 + 35, window.innerHeight - 35]);
     graph.nodes.forEach(function(d){
 	    if(d.gr == "r"){
+        d.x_wheel = d.x;
+        d.y_wheel = d.y;
 		    d.x_draw = 0;
     	  d.y_draw = 0;
         d.circle_size = 0;
@@ -1418,6 +1412,10 @@ function draw_wheel(){
         d.y_scatter = linearScaleY(data[+d.id].rating);
         d.color = '';
 	    }
+      if(d.gr == "v"){
+        d.x_wheel = d.x;
+        d.y_wheel = d.y;
+      }
     });
 
     var gx = svg.append('g')
@@ -1488,38 +1486,59 @@ function draw_wheel(){
           normal = false;
           grid = true;
           var t = Math.min(1,d3.easeCubicInOut(e/3000));
+          if(third_button_clicked){
+            graph.nodes.forEach(function(d){
+              // 1-t is starterpoint t is endding point
+              d.x_draw = d.x_price_force * (1-t)
+              + d.x_scatter * t;
 
-          graph.nodes.forEach(function(d){
-            // 1-t is starterpoint t is endding point
-            d.x_draw = (d.x * transform.k + transform.x) * (1-t)
-            + d.x_scatter * t;
+              d.y_draw = d.y_price_force * (1-t)
+              + d.y_scatter * t;
 
-            d.y_draw = (d.y * transform.k + transform.y) * (1-t)
-            + d.y_scatter * t;
+              d.circle_size =3/transform.k
+              //  p5_map(t,0,1,3-(1*transform.k),3/transform.k);
 
-            d.circle_size = p5_map(t,0,1,3-(1*transform.k),3/transform.k);
+              d.circle_opacity = Math.round(p5_map(t,0,.999,1,0.3) *10) /10;
 
-            d.circle_opacity = Math.round(p5_map(t,0,.999,1,0.3) *10) /10;
-            if(d.gd <=13){
-              d.color = interpolate_A(t).split('(');
-              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
-              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
-              d.color = d.color.join('');
-            };
-            if(d.gd>13 && d.gd<=27){
-              d.color = interpolate_B(t).split('(');
-              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
-              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
-              d.color = d.color.join('');
-            };
-            if(d.gd > 27){
-              d.color = interpolate_C(t).split('(');
-              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
-              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
-              d.color = d.color.join('');
-            };
-            if(d.gr == 'v'){ d.circle_opacity=Math.round(p5_map(t,0,.2,1,0) *10) /10}
-          });
+              d.color = 'rgba(254, 77, 1,.3)';
+
+              if(d.gr == 'v'){ d.circle_opacity=0}
+            });
+          }else{
+            graph.nodes.forEach(function(d){
+              // 1-t is starterpoint t is endding point
+              d.x_draw = (d.x_wheel * transform.k + transform.x) * (1-t)
+              + d.x_scatter * t;
+
+              d.y_draw = (d.y_wheel * transform.k + transform.y) * (1-t)
+              + d.y_scatter * t;
+
+              d.circle_size = p5_map(t,0,1,3-(1*transform.k),3/transform.k);
+
+              d.circle_opacity = Math.round(p5_map(t,0,.999,1,0.3) *10) /10;
+              if(d.gd <=13){
+                d.color = interpolate_A(t).split('(');
+                d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+                d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+                d.color = d.color.join('');
+              };
+              if(d.gd>13 && d.gd<=27){
+                d.color = interpolate_B(t).split('(');
+                d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+                d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+                d.color = d.color.join('');
+              };
+              if(d.gd > 27){
+                d.color = interpolate_C(t).split('(');
+                d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+                d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+                d.color = d.color.join('');
+              };
+              if(d.gr == 'v'){ d.circle_opacity=Math.round(p5_map(t,0,.2,1,0) *10) /10}
+            });
+          }
+
+
           if(t >=0 && t<0.7){
             toggle_stroke = true;
           }
@@ -1527,6 +1546,7 @@ function draw_wheel(){
           if (t === 1) {
             timer.stop();
             toggle_stroke = false;
+            third_button_clicked = false;
           }
         })
     /***************************************** find *******************************************/
@@ -1535,15 +1555,20 @@ function draw_wheel(){
       .x(function(d) { return d.x_scatter})
       .y(function(d) { return d.y_scatter})
       .addAll(graph.nodes);
-      if(d3.select('.temporary')._groups[0][0] == null){
-        d3.select('body')
-            .append('canvas')
-            .attr('height',window.innerHeight)
-            .attr('width',window.innerWidth)
-            .attr('class','temporary')
-            .canvas(true);
+      if(third_button_clicked){
         var canvas_temp = document.querySelector('.temporary');
         var context_temp = canvas_temp.getContext('2d');
+      }else{
+        if(d3.select('.temporary')._groups[0][0] == null){
+          d3.select('body')
+              .append('canvas')
+              .attr('height',window.innerHeight)
+              .attr('width',window.innerWidth)
+              .attr('class','temporary')
+              .canvas(true);
+          var canvas_temp = document.querySelector('.temporary');
+          var context_temp = canvas_temp.getContext('2d');
+        }
       }
     /***************************************** second canvas *******************************************/
     var featured_point=[];
@@ -1560,7 +1585,7 @@ function draw_wheel(){
           p_prev = p;
           node_for_text = data[+p.id];
           jquery();
-          console.log("prev !== next");
+          // console.log("prev !== next");
           (function(){
             var use = _.sortBy(_.sortBy(graph.nodes,'x_draw'),'y_draw');
             var i = 0;
@@ -1617,7 +1642,6 @@ function draw_wheel(){
               }
               toggle_loop = false;
             })
-
           })()
 
         }
@@ -1789,11 +1813,19 @@ function draw_wheel(){
       clicked = false;
 
     }
-  }); //button_grid
+  }
 
   $('.test_two').click(function(){
-    $(this).children().children().addClass('active')
-    $('#plot_rating').removeClass('active')
+    if(toggle_color_for_last_inspect){
+      ticked();
+      toggle_color_for_last_inspect = false;
+      $('#last_inspection_wheel_inner').removeClass('active');
+    }
+    toggle_axis_price = true;
+    $(this).children().children().addClass('active');
+    $('#plot_rating').removeClass('active');
+    $('#plot_rating_following').removeClass('active');
+    $('#plot_price').removeClass('active')
 
     $('#tooltip_wheel').css('display','block')
     d3.select("#tooltip_wheel")
@@ -1821,32 +1853,60 @@ function draw_wheel(){
 
    var timer = d3.timer(function(e){
        var t = Math.min(1,d3.easeCubicInOut(e/3000));
-       graph.nodes.forEach(function(d){
-          d.x_draw = (d.x * transform.k + transform.x) * t + d.x_scatter * (1-t)
-          d.y_draw = (d.y * transform.k + transform.y) * t + d.y_scatter * (1-t)
-          d.circle_size = p5_map(t,0,.999,3/transform.k,  3-(1.5*transform.k) );
-          d.circle_opacity = Math.round(p5_map(t,0,.999,0.3,1) *10) /10;
-          if(d.gr == 'v'){ d.circle_opacity=Math.round(p5_map(t,0,.999,0,1) *10) /10}
-          if(d.gd <=13){
-            d.color = interpolate_A(t).split('(');
-            d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
-            d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
-            d.color = d.color.join('');
-          };
-          if(d.gd>13 && d.gd<=27){
-            d.color = interpolate_B(t).split('(');
-            d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
-            d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
-            d.color = d.color.join('');
-          };
-          if(d.gd > 27){
-            d.color = interpolate_C(t).split('(');
-            d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
-            d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
-            d.color = d.color.join('');
-          };
+       if(third_button_clicked){
+         graph.nodes.forEach(function(d){
+            d.x_draw = (d.x_wheel * transform.k + transform.x) * t + d.x_price_force * (1-t)
+            d.y_draw = (d.y_wheel * transform.k + transform.y) * t + d.y_price_force * (1-t)
+            d.circle_size = p5_map(t,0,.999,3/transform.k,  3-(1.5*transform.k) );
+            d.circle_opacity = Math.round(p5_map(t,0,.999,0.3,1) *10) /10;
+            if(d.gr == 'v'){ d.circle_opacity=Math.round(p5_map(t,0,.999,0,1) *10) /10}
+            if(d.gd <=13){
+              d.color = interpolate_A(t).split('(');
+              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+              d.color = d.color.join('');
+            };
+            if(d.gd>13 && d.gd<=27){
+              d.color = interpolate_B(t).split('(');
+              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+              d.color = d.color.join('');
+            };
+            if(d.gd > 27){
+              d.color = interpolate_C(t).split('(');
+              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+              d.color = d.color.join('');
+            };
+        });
+       }else{
+         graph.nodes.forEach(function(d){
+            d.x_draw = (d.x_wheel * transform.k + transform.x) * t + d.x_scatter * (1-t)
+            d.y_draw = (d.y_wheel * transform.k + transform.y) * t + d.y_scatter * (1-t)
+            d.circle_size = p5_map(t,0,.999,3/transform.k,  3-(1.5*transform.k) );
+            d.circle_opacity = Math.round(p5_map(t,0,.999,0.3,1) *10) /10;
+            if(d.gr == 'v'){ d.circle_opacity=Math.round(p5_map(t,0,.999,0,1) *10) /10}
+            if(d.gd <=13){
+              d.color = interpolate_A(t).split('(');
+              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+              d.color = d.color.join('');
+            };
+            if(d.gd>13 && d.gd<=27){
+              d.color = interpolate_B(t).split('(');
+              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+              d.color = d.color.join('');
+            };
+            if(d.gd > 27){
+              d.color = interpolate_C(t).split('(');
+              d.color[0] = d.color[0].replace(/rgb/g,'rgba(');
+              d.color[1] = d.color[1].replace(/\)/g,', '+ d.circle_opacity + ')');
+              d.color = d.color.join('');
+            };
+        });
+       }
 
-      });
       if(t >0.5 && t<=1){
         toggle_stroke = true;
       }
@@ -1855,6 +1915,7 @@ function draw_wheel(){
         timer.stop();
          normal = true;
          grid = false;
+         third_button_clicked = false;
          toggle_stroke = false;
             ticked();
        }
@@ -1862,98 +1923,258 @@ function draw_wheel(){
    select_canvas.on('mousemove',mv);
   });
 
-}
+  $('.test_three').click(function(){
+    $('#plot_inspection').removeClass('active')
+    $('#plot_rating_following').removeClass('active');
+    $('#plot_price').addClass('active');
 
-$('.test_three').click(function(){
-  d3.selectAll('.axis').style('visibility','hidden');
-  d3.selectAll('#axis_y').style('visibility','hidden');
-  d3.selectAll('.axis_x_price').style('visibility','');
-  d3.selectAll('.axis_y_price').style('visibility','');
-  /********************************** compute scatter plot ****************************************/
-  var change_axis = d3.select('.sub_visual')
-  //x axis
-  var vio_s = graph.nodes.map(function(d){if(!isNaN(+d.id)){ return data[+d.id].violation.recentScore;}});
-  vio_s.splice(0,78);
-  var vio_s_max = d3.max(vio_s)
-  var vio_s_min = d3.min(vio_s)
-  var linearScaleX = d3.scaleLinear()
-    .domain([vio_s_min,vio_s_max])
-    .range([150 + 25, window.innerWidth - 400]);
-  //y axis
-  var price_tier_plot =graph.nodes.map(function(d){if(!isNaN(+d.id)){return data[+d.id].price;}})
-  price_tier_plot.splice(0,78);
-  var price_max = d3.max(price_tier_plot)
-  var price_min = d3.min(price_tier_plot)
-  var linearScaleY = d3.scaleLinear()
-    .domain([price_max,price_min])
-    .range([0 + 35, window.innerHeight - 35]);
+    d3.selectAll(".axis")
+      .transition()
+      .ease(d3.easeQuad)
+      .duration(1000)
+      .style("opacity", 0).on('interrupt',function(){
+        d3.active(this).style('visibility','').style('opacity',1);
+      });
+    d3.selectAll("#axis_y")
+      .transition()
+      .ease(d3.easeQuad)
+      .duration(1000)
+      .style("opacity", 0).on('interrupt',function(){
+        d3.active(this).style('visibility','').style('opacity',1);
+      })
 
-  graph.nodes.forEach(function(d){
-    if(d.gr == "r"){
-      d.x_draw = 0;
-      d.y_draw = 0;
-      d.circle_size = 0;
-      d.circle_opacity =0;
-      d.x_price_scatter = linearScaleX(data[+d.id].violation.recentScore);
-      d.y_price_scatter = linearScaleY(data[+d.id].rating);
-      d.color = '';
+    d3.selectAll('.axis_x_price')
+    .transition()
+    .ease(d3.easeQuad)
+    .duration(500)
+    .style("opacity", 1)
+    .style('visibility','');
+    d3.selectAll('.axis_y_price')
+    .transition()
+    .ease(d3.easeQuad)
+    .duration(500)
+    .style("opacity", 1)
+    .style('visibility','');
+    /********************************** compute scatter plot ****************************************/
+    var change_axis = d3.select('.sub_visual');
+    //x axis
+    var vio_s = graph.nodes.map(function(d){if(!isNaN(+d.id)){
+      if(data[+d.id].violation.recentScore == null ||data[+d.id].violation.recentScore == undefined){ return 0;}
+       return data[+d.id].violation.recentScore;
+    }});
+    vio_s.splice(0,78);
+    var vio_s_max = d3.max(vio_s)
+    var vio_s_min = d3.min(vio_s)
+    var linearScaleX = d3.scaleLinear()
+      .domain([vio_s_min,vio_s_max])
+      .range([150 + 25, window.innerWidth - 400]);
+    //y axis
+    var price_tier_plot =graph.nodes.map(function(d){if(!isNaN(+d.id)){return data[+d.id].price;}})
+    price_tier_plot.splice(0,78);
+    var price_max = d3.max(price_tier_plot)
+    var price_min = d3.min(price_tier_plot)
+    var linearScaleY = d3.scaleLinear()
+      .domain([price_max,0])
+      .range([0 + 35, window.innerHeight - 35]);
+    //set up object property
+    graph.nodes.forEach(function(d){
+      if(d.gr == "r"){
+        d.x = d.x_draw;
+        d.y = d.y_draw;
+        d.circle_size = 3;
+        d.circle_opacity =1;
+        d.x_price_scatter = linearScaleX(data[+d.id].violation.recentScore) +Math.random(0,1);
+        d.y_price_scatter = linearScaleY(data[+d.id].price) +Math.random(0,1);
+      }
+    });
+
+    //Collision detection
+    var collision = d3.forceSimulation()
+        // .velocityDecay(.1)
+        // .alphaDecay(.01)
+        .force("x", d3.forceX(function(d){return d.x_price_scatter; }).strength(0.385))
+        .force("y", d3.forceY(function(d){return d.y_price_scatter}).strength(0.025))
+        // .force("collision", d3.forceCollide(4))
+        // .force("charge",d3.forceManyBody().strength(-0.1))
+
+    axis_price(change_axis,linearScaleX,linearScaleY);
+    //draw loop
+    collision
+      .nodes(graph.nodes)
+      .on('tick',tick_collision)
+    var tick_collision_iteration = 0;
+    var tree;
+    function tick_collision(){
+      tick_collision_iteration ++;
+      context.save();
+      context.clearRect(0,0,width,height);
+      context.beginPath();
+
+
+      context.fillStyle = "rgba(255, 255, 255, .2)";
+      context.font = "900 30px futura"; //Miller-DisplayItalic
+      context.textAlign = "left";
+      context.fillText("GRADE: A",graph.nodes[2619+69].x_scatter,graph.nodes[2619+69].y_scatter);
+      context.fillText("GRADE: B",graph.nodes[4383+66].x_scatter,graph.nodes[2619+69].y_scatter);
+      context.fillText("GRADE: C",graph.nodes[4507+66].x_scatter,graph.nodes[2619+69].y_scatter);
+
+      graph.nodes.forEach(function(d){
+        if(d.gr == 'r'){
+          context.beginPath();
+          context.moveTo(d.x +
+            // (3 / transform.k)
+            3
+            ,
+            d.y
+          );
+          context.arc(d.x,
+            d.y,
+            // (3 / transform.k)
+            3
+            ,
+            0,
+            2 * Math.PI
+          );
+          context.fillStyle = "rgba(254, 77, 1,.5)";
+          context.fill();
+        }
+      })
+
+      context.restore();
+      console.log(tick_collision_iteration);
+      if(tick_collision_iteration == 152){
+        collision.stop();
+        third_button_clicked = true;
+        graph.nodes.forEach(function(d){
+          d.x_price_force = d.x;
+          d.y_price_force = d.y;
+          d.x = d.x_wheel;
+          d.y = d.y_wheel;
+        });
+        tree = d3.quadtree()
+         .extent([[0, 0], [window.innerWidth, window.innerHeight]])
+         .x(function(d) { return d.x_price_force})
+         .y(function(d) { return d.y_price_force})
+         .addAll(graph.nodes);
+      }
     }
+
+    var canvas_temp = document.querySelector('.temporary');
+    var context_temp = canvas_temp.getContext('2d');
+    d3.select('.temporary').on('mousemove',price_mv);
+    d3.select('.temporary').on('click',price_click);
+    var p_prev = {id: "arbitrary"};
+    var clicked_price = true;
+    var point_for_click;
+
+    function price_mv(){
+      clicked_price = true;
+      var m = d3.mouse(this),
+          p = tree.find(m[0], m[1]);
+      point_for_click = p;
+      if(p_prev.id !== p.id){
+        p_prev = p;
+        node_for_text = data[+p.id];
+        jquery();
+        console.log("prev !== next");
+
+        var timer_ease = d3.timer(function(e){
+          var ease = Math.min(1,d3.easePolyOut(e/500,4));
+          context_temp.save();
+          context_temp.clearRect(0,0,width,height);
+
+          context_temp.beginPath();
+          context_temp.moveTo(p.x_price_force +
+            ((p.circle_size * (1-ease)) + 9 * ease)
+            ,
+            p.y_price_force
+          );
+          context_temp.arc(p.x_price_force,
+            p.y_price_force,
+            ((p.circle_size * (1-ease)) + 9 * ease)
+            ,
+            0,
+            2 * Math.PI
+          );
+
+          context_temp.fillStyle = 'rgba(244, 185, 168, .8)'
+          context_temp.fill();
+          context_temp.restore();
+
+          if(ease == 1){
+            console.log("stop");
+            timer_ease.stop();
+          }
+        })
+      }
+    }
+
+    function price_click(){
+      console.log("clicked");
+
+      if(clicked_price){
+        d3.select('.temporary').on('mousemove',null)
+        $('.slide').css('right','2rem')
+        $('.slide').css('background-color',"rgb(27, 31, 58)")
+        $('.slide').css('opacity',"0.92")
+        $('.slide').css('box-shadow',"-31px 8px 180px 2px rgba(14, 16, 33, 0.5)")
+        $('.popup_button').css('display','block')
+        $('.popup_button').css('z-index',10)
+        var timer_ease_c = d3.timer(function(e){
+          var ease_v = Math.min(1,d3.easeBackInOut(e/800));
+          var ease_color = d3.scaleQuantile()
+              .domain([0, 1])
+              .range(['rgba(244, 185, 168, .8)', 'rgba(242, 219, 215, 0.8)']);
+              context_temp.save();
+              context_temp.clearRect(0,0,width,height);
+              context_temp.beginPath();
+              context_temp.moveTo(point_for_click.x_price_force +
+                ((9 * (1-ease_v)) + 11 * ease_v)
+                ,
+                point_for_click.y_price_force
+              );
+              context_temp.arc(point_for_click.x_price_force,
+                point_for_click.y_price_force,
+                ((9 * (1-ease_v)) + 11 * ease_v)
+                ,
+                0,
+                2 * Math.PI
+              );
+              context_temp.fillStyle = ease_color(parseFloat(ease_v));
+              context_temp.fill();
+              if(ease_v ==1){
+                timer_ease_c.stop();
+              }
+        });
+      }
+      if(!clicked_price){
+        $('.slide').css('right','-23.063rem')
+        $('.popup_button').css('display','none')
+        $('.slide').css('opacity',"")
+        $('.slide').css('box-shadow',"")
+        $('.slide').css('background-color',"")
+        d3.select('.temporary').on('mousemove',price_mv)
+      }
+      clicked_price = false;
+    }
+
+  }) //click three
+  }
+
+$( ".last_inspection_wheel" ).click(function (){
+  $('#plot_inspection').removeClass('active')
+  $('#last_inspection_wheel_inner').addClass('active')
+  var max = 1487998800000,
+      min = 1443499200000,
+      color_for_last_inspect = d3.scaleLinear()
+      .domain([min, max])
+      .range(["red", "white"]); //first parameter is the latest inspect, second one is the oldest.
+      // .range(["brown", "steelblue"]);
+  data.forEach(function(d){
+      d.violation.color_for_last_inspect = color_for_last_inspect(Date.parse(d.violation.recentTime));
   });
-
-  var gx = change_axis.append('g')
-    .attr('class','axis_x_price')
-    .attr("transform", "translate(0," + (window.innerHeight -25) + ")")
-    .call(customXAxis)
-    .transition().duration(10/2)
-    .style("opacity", 0)
-    .transition()
-    .ease(d3.easeQuad)
-    .duration(4000)
-    .style("opacity", 1)
-
-  function customXAxis(g) {
-      g.call(d3.axisTop(linearScaleX));
-      // g.selectAll('.tick line').attr('y2','-'+(window.innerHeight -70)).attr("stroke-dasharray", "2,10").style('z-index',3);
-      // g.selectAll(".tick text").attr("x", 10).attr("dy", 4);
-
-      // g.append('text')
-        // .attr('y',15)
-        // .attr('x',parseFloat(g.select('path').attr('d').match(/[^M].+,/g)))
-        // .attr('text-anchor','start')
-        // .style('font-size','0.558rem')
-        // .text('Sanitation Score')
-    }
-
-  var gy = change_axis.append('g')
-    .attr('class','axis_y_price')
-    .attr("transform", "translate("+165 +",0)")
-    .call(customYAxis)
-    .transition().duration(10/2)
-    .style("opacity", 0)
-    .transition()
-    .ease(d3.easeQuad)
-    .duration(4000)
-    .style("opacity", 1)
-
-  function customYAxis(g){
-      g.call(d3.axisLeft(linearScaleY)
-        .tickValues([1,2,3,4])
-      )
-      g.select(".domain").remove();
-
-      g.selectAll(".tick text").attr("y", -10).attr("x", 0).style('font-size','.438rem');
-      //
-      // g.select('.tick')
-      //   .append('text')
-      //   .attr('y',g.select('.tick').select('text').attr('y') -25)
-      //   .attr('x',g.select('.tick').select('line').attr('x2'))
-      //   .attr('dy','0.32em')
-      //   .attr('text-anchor','start')
-      //   .style('font-size','0.558rem')
-      //   .text('Foursquare Rating')
-    }
-
-
-})
+  toggle_color_for_last_inspect = true;
+  ticked();
+});
 
 setup(draw_wheel);

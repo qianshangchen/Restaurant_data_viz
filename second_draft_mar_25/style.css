@@ -21,25 +21,22 @@ body {
 	width: 100%;
 	height: 100%;
 	margin: 0;
-	/*background-color: #ffffff;*/
 	background-color: #1b1f3a;
 	font-size: 100%;
 	overflow-y:scroll;
 	/*overflow-x: hidden;*/
 }
+
+#intro_page{
+  background: rgba(13,19,40,.8);
+  z-index: 1000000000000;
+  width: 89.5%;
+  height: 100%;
+  right: 0;
+  position: absolute;
+}
+
 #infoPanel_container {
-  /*width: 51.1805%;*/
-   /*46.063rem;*/
-  /*height: 82.666%;
-  max-width: 800px;
-  min-width: 500px;
-  max-height: 683px;
-  min-height: 383px;*/
-  /*38.750rem;*/
-  /*position: absolute;*/
-  /*top: 9.37%;*/
-  /*z-index: 1;*/
-  /*right: -23.149rem;*/
   width: 100%;
   height: 100%;
   position: absolute;
@@ -67,22 +64,8 @@ body {
   font-size: 0.896875em;
   color: white;
 }
-/************button************/
-/*.button-group {
-  width: 100%;
-  margin-top: 27.08333333333333%; /* 156 / 576
-  z-index: 1;
-}*/
-.button-group h2 {
-  /*color: #fff;*/
-  /*font-family: Miller-DisplayItalic;*/
-  /*font-size: 0.779375em;*/
-  /*letter-spacing: .1rem;*/
-  /*text-transform: uppercase;*/
-  /*z-index: 1;*/
-  /*font-weight: initial;*/
 
-}
+.button-group h2 {}
 
 button {
   z-index: 1;
@@ -737,6 +720,14 @@ svg{
   z-index: 1;
   display: none;
 }
+#tooltip_inspect_time{
+  position: absolute;
+  width: 16%;
+  bottom: 0;
+  left: 10.938rem;
+  z-index: 1;
+  visibility: hidden;
+}
 #tooltip_plot_grade_rating{
   position: absolute;
   width: 16%;
@@ -839,6 +830,8 @@ svg{
   -moz-transition: -moz-transform 1s ease-in-out 0s;
   -webkit-transition: -webkit-transform 1s ease-in-out 0s;
 }
+
+
 #nav_bar{
   position: absolute;
   width: 9.438rem;
@@ -1192,4 +1185,78 @@ z-index: 1000;
   position: relative;
   margin: auto 14.825%;
 
+}
+#map_02_container{
+  background-color: white;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+.subbbbb{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#map_02_container div canvas{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+#china_town_fly{
+  position: absolute;
+  right: 278px;
+}
+#china_town_fly p{
+  font-family: Miller-TextBoldItalic;
+  font-size: 0.425rem;
+  line-height: 1.3;
+  color: white;
+  position: relative;
+  text-align: center;
+  font-weight: initial;
+  cursor: pointer;
+  z-index: 1000;
+  border: 3px solid darkgrey;
+  border-radius: 18px;
+  padding: 8px;
+}
+
+#little_italy_fly{
+  position: absolute;
+  right: 200px;
+}
+#little_italy_fly p{
+  font-family: Miller-TextBoldItalic;
+  font-size: 0.425rem;
+  line-height: 1.3;
+  color: white;
+  position: relative;
+  text-align: center;
+  font-weight: initial;
+  cursor: pointer;
+  z-index: 1000;
+  border: 3px solid darkgrey;
+  border-radius: 18px;
+  padding: 8px;
+}
+
+#parsons_fly{
+  position: absolute;
+  right: 132px;
+}
+#parsons_fly p{
+  font-family: Miller-TextBoldItalic;
+  font-size: 0.425rem;
+  line-height: 1.3;
+  color: white;
+  position: relative;
+  text-align: center;
+  font-weight: initial;
+  cursor: pointer;
+  z-index: 1000;
+  border: 3px solid darkgrey;
+  border-radius: 18px;
+  padding: 8px;
 }

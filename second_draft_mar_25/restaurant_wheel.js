@@ -1827,6 +1827,7 @@ function draw_wheel(){
     $('#plot_rating_following').removeClass('active');
     $('#plot_price').removeClass('active')
 
+    $('#tooltip_inspect_time').css('visibility','hidden')
     $('#tooltip_wheel').css('display','block')
     d3.select("#tooltip_wheel")
       .transition().duration(10/2)
@@ -2159,22 +2160,234 @@ function draw_wheel(){
     }
 
   }) //click three
+
+  $( ".last_inspection_wheel" ).click(function (){
+    $('#plot_inspection').removeClass('active')
+    $('#last_inspection_wheel_inner').addClass('active')
+
+    $('#tooltip_wheel').css('display','none')
+    $('#tooltip_inspect_time').css('visibility','visible')
+    .css('bottom',function(){return 50;})
+    .css('opacity',0)
+    d3.select('#tooltip_inspect_time')
+      .transition()
+      .ease(d3.easeQuad)
+      .duration(4000)
+      .style("opacity", 1)
+
+    var max = 1487998800000,
+        min = 1443499200000,
+        color_for_last_inspect = d3.scaleLinear()
+        .domain([min, max])
+        .range(["red", "white"]); //first parameter is the latest inspect, second one is the oldest.
+        // .range(["brown", "steelblue"]);
+    data.forEach(function(d){
+        d.violation.color_for_last_inspect = color_for_last_inspect(Date.parse(d.violation.recentTime));
+    });
+    toggle_color_for_last_inspect = true;
+    ticked();
+    });
   }
 
-$( ".last_inspection_wheel" ).click(function (){
-  $('#plot_inspection').removeClass('active')
-  $('#last_inspection_wheel_inner').addClass('active')
-  var max = 1487998800000,
-      min = 1443499200000,
-      color_for_last_inspect = d3.scaleLinear()
-      .domain([min, max])
-      .range(["red", "white"]); //first parameter is the latest inspect, second one is the oldest.
-      // .range(["brown", "steelblue"]);
-  data.forEach(function(d){
-      d.violation.color_for_last_inspect = color_for_last_inspect(Date.parse(d.violation.recentTime));
-  });
-  toggle_color_for_last_inspect = true;
-  ticked();
-});
+$(".map_plot").click(function(){
 
+
+  $('#mapbox').css('display','none')
+
+  d3.select('#infoPanel_container')
+    .append('div')
+    .attr('id','map_02_container')
+    // .style('width',(window.innerWidth - (737 - 369)))
+  var tree;
+  var size_change =.3;
+  var map_view = new mapboxgl.Map({
+    container: 'map_02_container',
+    style: 'mapbox://styles/jiahao01121/cj2gkvmgh004g2rpnzc7p6g5y',
+    center: [-73.98499481968639, 40.74442495683266],
+    //2D view:
+     // [-73.985,40.715],
+
+    zoom: 13.915641541140074,
+    pitch: 58,
+    bearing: 44.80000000000007,
+  })
+  map_view.addControl(new mapboxgl.NavigationControl());
+  var bbox = $('#map_02_container')
+  var width = bbox.width();
+  var height = bbox.height();
+  var container = map_view.getCanvasContainer()
+  d3.select(container)
+    .append("canvas")
+    .attr('height',height)
+    .attr('width',width)
+    .attr('class','subbbbb')
+    .canvas(true);
+  var canvas = document.querySelector('.subbbbb');
+  var ctx = canvas.getContext('2d');
+
+  map_add_button(map_view); /*** button *****/
+
+  var myZoom = {
+    start:  map_view.getZoom(),
+    end: map_view.getZoom()
+  };
+  map_view.on('zoomstart', function(e) {
+    myZoom.start = map_view.getZoom();
+  });
+  map_view.on('zoomend', function(e) {
+    myZoom.end = map_view.getZoom();
+    var diff = myZoom.start - myZoom.end;
+    if (diff > 0) {
+      size_change  = .3;
+    } else if (diff < 0) {
+      size_change  = .5;
+    }
+  });
+  var max = d3.max(data.map(function(d){ return d.violation.recentScore}));
+  var min = d3.min(data.map(function(d){ return d.violation.recentScore}));
+
+  function render() {
+    ctx.save();
+    ctx.clearRect(0, 0, width, height);
+    ctx.translate(bbox.width()/2, bbox.height()/2);
+    ctx.scale((512) * 0.5 / Math.PI * Math.pow(2, map.getZoom()),(512) * 0.5 / Math.PI * Math.pow(2, map.getZoom()));
+
+    data.forEach(function(d) {
+      var ready = map_view.project(new mapboxgl.LngLat(d.lng,d.lat));
+      d.map_coord_x = ready.x;
+      d.map_coord_y = ready.y;
+      var size = p5_map(d.violation.recentScore,min,max,2,50) * size_change
+      var color;
+      if(d.violation.recentScore >=13){
+        color =  "rgba(204,119,44,.8)";
+      }
+      if(d.violation.recentScore >13 && d.violation.recentScore <=27){
+        color =  "rgba(41,122,239,.8)";
+
+      }
+      if(d.violation.recentScore >27){
+        color =  "rgba(42,255,80,.8)";
+      }
+      ctx.beginPath();
+      ctx.moveTo(d.map_coord_x + size , d.map_coord_y);
+      ctx.arc(d.map_coord_x, d.map_coord_y, size  , 0, Math.PI*2);
+
+      ctx.fillStyle = color;
+      // "rgba(255,255,255,.3)";
+      ctx.fill();
+      ctx.restore();
+    });
+    tree = d3.quadtree()
+     .extent([[0, 0], [width, height]])
+     .x(function(d) { return d.map_coord_x})
+     .y(function(d) { return d.map_coord_y})
+     .addAll(data);
+  }
+  map_view.on("viewreset", function() {
+    render()
+  })
+  map_view.on("move", function() {
+    render()
+  })
+  render();
+  var clicked_map_view = true;
+  map_view.on('click',function(e){
+    console.log(map_view.getCenter())
+    console.log(map_view.getZoom())
+    console.log(map_view.getBearing())
+    console.log(map_view.getPitch())
+
+     p = tree.find(e.point.x, e.point.y);
+     node_for_text = p;
+     if(!clicked_map_view){
+       $('.slide').css('right','-23.063rem');
+       $('.popup_button').css('display','none');
+       $('.slide').css('opacity',"");
+       $('.slide').css('box-shadow',"");
+       $('.slide').css('background-color',"");
+       $('#mapbox').css('display','none');
+       clicked_map_view = true;
+     }
+     else if(clicked_map_view){
+       jquery();
+       $('.slide').css('right','2rem');
+       $('.slide').css('background-color',"rgb(27, 31, 58)");
+       $('.slide').css('opacity',"0.92");
+       $('.slide').css('box-shadow',"-31px 8px 180px 2px rgba(14, 16, 33, 0.5)");
+       $('.popup_button').css('display','block');
+       $('.popup_button').css('z-index',10);
+       clicked_map_view = false;
+     }
+  })// map click
+
+var p_prev = {id: "arbitrary"};
+  map_view.on('mousemove',function(e){
+    p = tree.find(e.point.x, e.point.y);
+    if(p_prev.id !== p.id){
+      p_prev = p;
+      node_for_text = p;
+      jquery();
+    }
+    if(clicked_map_view){
+        $('#mapbox').css('display','none');
+    }
+  })// map mouseover
+})
+
+
+function map_add_button (map_view){
+ /********** china town ************/
+ d3.select('#map_02_container .mapboxgl-control-container')
+    .append('span')
+    .attr('id','china_town_fly')
+    .append('p')
+    .append('a')
+    .text('CHINA TOWN')
+    .attr('id','china_town_fly_inner')
+
+  $('#china_town_fly').click(function(){
+
+    map_view.flyTo({
+      center: [-73.98922187254743, 40.71574842130374],
+      zoom:15,
+      pitch: 3.5,
+      bearing:12.432028020413211
+    });
+  })
+  /********** little italy ************/
+  d3.select('#map_02_container .mapboxgl-control-container')
+     .append('span')
+     .attr('id','little_italy_fly')
+     .append('p')
+     .append('a')
+     .text('LITTLE ITALY')
+     .attr('id','little_italy_fly_inner')
+
+  $('#little_italy_fly').click(function(){
+
+   map_view.flyTo({
+      center: [-73.99664850718472,40.72175910303059],
+      zoom:15.5122600128775,
+      pitch: 3.5,
+      bearing:12.432028020413211
+    });
+  });
+  /********** parsons ************/
+  d3.select('#map_02_container .mapboxgl-control-container')
+     .append('span')
+     .attr('id','parsons_fly')
+     .append('p')
+     .append('a')
+     .text('PARSONS')
+     .attr('id','parsons_fly_inner')
+
+  $('#parsons_fly').click(function(){
+   map_view.flyTo({
+      center: [-73.99320257625709, 40.735620893181874],
+      zoom:16.79656091478192,
+      pitch: 3.5,
+      bearing:12.432028020413211
+    });
+  });
+};
 setup(draw_wheel);

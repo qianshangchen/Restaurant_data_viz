@@ -709,14 +709,14 @@ svg{
   position: absolute;
   width: 16%;
   bottom: 0;
-  left: 10.938rem;
+  left: 2.188rem;
   z-index: 1;
 }
 #tooltip_search{
   position: absolute;
   width: 16%;
   bottom: 0;
-  left: 10.938rem;
+  left: 2.188rem;
   z-index: 1;
   display: none;
 }
@@ -724,7 +724,7 @@ svg{
   position: absolute;
   width: 16%;
   bottom: 0;
-  left: 10.938rem;
+  left: 2.188rem;
   z-index: 1;
   visibility: hidden;
 }
@@ -824,7 +824,7 @@ svg{
 /**************************************/
 #nav_container{
   width: 100%;
-  height: 100%;
+  height: 3.750rem;
   position: absolute;
   transition: transform 1s ease-in-out 0s;
   -moz-transition: -moz-transform 1s ease-in-out 0s;
@@ -834,20 +834,44 @@ svg{
 
 #nav_bar{
   position: absolute;
-  width: 9.438rem;
+  width: 100%;
   height: 100%;
   z-index: 999;
-  background-color: #060c23;
+  background-color:rgba(5, 11, 35, 0.75);
   box-shadow: 9px 0px 20px 0px rgba(28, 41, 93, 0.21);
 }
 
 #header{
   position: relative;
-  text-align: center;
+  text-align: left;
   font-family: futura;
-  font-size: 1.206rem;
+  font-size: 1.294rem;
   color: white;
+  padding-left: 2.188rem;
+  cursor: pointer;
+  width: 500px;
+  z-index: 1;
 }
+
+#header:after {
+  content: "Storytelling of NYC Restaurant";
+  position: relative;
+  font-family: Miller-DisplayItalic;
+  font-size: 0.659rem;
+  color: white;
+  top: -0.287rem;
+  margin-left: 2.188rem;
+}
+#header:before {
+  content: '';
+  width: 1px;
+  position: absolute;
+  height: 2rem;
+  border-radius: 20px;
+  background-color: #fff;
+  margin-left: 13.063rem;
+}
+
 #header_second{
   position: relative;
   text-align: center;
@@ -873,8 +897,9 @@ svg{
 /*****************************************************************/
 #content {
   position: relative;
-  top: 6.2%;
-  left: 141.359px;
+  float: right;
+  margin-right: -6.688rem;
+  margin-top: -1.712rem;
 }
 
 #content.on {
@@ -1032,7 +1057,7 @@ padding-left: 0;
 position: relative;
 top: -11px;
 right: 132px;
-width: 142px;
+width: 132px;
 z-index: 1000;
 }
 .search_item{
@@ -1056,35 +1081,47 @@ z-index: 1000;
 }
 /*********************************************************/
 
-#hr_bar_one{
-  margin: auto 6.625%;
-  position: relative;
-  top: 7.7%;
+#horizontal_header_container{
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
 }
 
 #header_filter_univ{
-  position: relative;
+  position: absolute;
   text-align: center;
   font-family: Miller-Text;
   font-size: 0.75rem;
   color: white;
-  top: 9.4%;
+  top: 22.4%;
+  right: 450px;
+  cursor: pointer;
+}
+#header_filter_univ::after{
+  content: '';
+  position: absolute;
+  height: 1.6rem;
+  border-radius: 20px;
+  background-color: #fff;
+  margin-left: 20px;
+  width: 2px;
+  top: -4px;
+  z-index: -1;
 }
 
-#hr_bar_two{
-  margin: auto 6.625%;
-  position: relative;
-  top: 15%;
 
-}
 #filtering_univ_container{
-  position: relative;
-  top: 11.2%;
+  position: absolute;
+  top: 72px;
+  right: 200px;
+  display: none;
 }
 
 .filter{
   height: 100%;
   position: relative;
+  float: left;
 }
 .filter p{
 
@@ -1094,10 +1131,10 @@ z-index: 1000;
   line-height: 2.3;
   color: white;
   position: relative;
-  text-align: center;
   font-weight: initial;
   cursor: pointer;
   z-index: 100;
+  margin: 0 42px;
 }
 
 #plot_rating{
@@ -1134,41 +1171,63 @@ z-index: 1000;
   transition: all ease 0.6s;
 }
 #header_sorting{
-  position: relative;
+  position: absolute;
   text-align: center;
   font-family: Miller-Text;
   font-size: 0.75rem;
   color: white;
-  top: 16.9%;
+  top: 22.4%;
+  right: 366px;
+  cursor: pointer;
+}
+#header_sorting::after{
+  content: '';
+  position: absolute;
+  height: 1.6rem;
+  border-radius: 20px;
+  background-color: #fff;
+  margin-left: 20px;
+  width: 2px;
+  top: -4px;
+  z-index: -1;
 }
 
+#GRAPH_CONTAINER{
+  position: absolute;
+  right: 276px;
+  top: 62px;
+  display: none;
+}
 #x_axis_head{
   position: relative;
   font-family: Miller-Text;
   font-size: 0.6rem;
   color: rgba(255, 255, 255, 0.5);
-  text-align: center;
+  text-align: left;
   top: 20.5%;
   font-weight: 100;
 }
 #sorting_container_x{
   position: relative;
-  top: 20.3%
+  /*top: 20.3%;*/
+  left: -42px;
 }
 
 #y_axis_head{
-  position: relative;
+  position: absolute;
   font-family: Miller-Text;
   font-size: 0.6rem;
-  color: rgba(255, 255, 255, 0.3);
-  text-align: center;
-  top: 20.5%;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: left;
+  top: 0;
   font-weight: 100;
+  left: 191px;
 }
 
 #sorting_container_y{
   position: relative;
-  top: 20.3%
+  top: -26px;
+  left: 147px;
 }
 
 #hr_bar_map_above{
@@ -1176,10 +1235,21 @@ z-index: 1000;
   position: relative;
   top: 20.7%;
 }
-
+#header_MAP{
+  position: absolute;
+  text-align: center;
+  font-family: Miller-Text;
+  font-size: 0.75rem;
+  color: white;
+  top: 22.4%;
+  right: 297px;
+  cursor: pointer;
+}
 #map_view_container{
-  position: relative;
-  top: 21%;
+  position: absolute;
+  top: 60px;
+  right: 257px;
+  display: none;
 }
 .fb-like{
   position: relative;

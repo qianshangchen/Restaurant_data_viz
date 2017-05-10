@@ -576,20 +576,20 @@ function zoom_init(arg_k, arg_x, arg_y){
   d3.select(canvas).call(zoom.transform, function () {
     /****** MBP 13" ********/
     // {k: 0.36399738724977154, x: 595.7472039203636, y: 371.8993242226453}
-    var k_value = 0.36399738724977154,
+    var k_value = 0.34099738724977154,
         w_value = window.innerWidth / (1440 / 595.7472039203636),
-        h_value = window.innerHeight / (748 / 371.8993242226453);
+        h_value = window.innerHeight / ((748 -40) / 371.8993242226453);
     /****** deckshop" ********/
     if(window.innerHeight > 800 ){
     // {k: 0.48700213427162076, x: 759.3835143163928, y: 483.8403018687343}
-      k_value =window.innerHeight / (983 / 0.48700213427162076);
+      k_value =window.innerHeight / ((983 -40) / 0.48700213427162076);
       w_value = window.innerWidth / (1920 / 859.3835143163928);
-      h_value = window.innerHeight / (983 / 483.8403018687343);
+      h_value = window.innerHeight / ((983 -40) / 483.8403018687343);
     };
     if(window.innerHeight > 1100 ){
-      k_value = window.innerHeight / (983 / 0.48700213427162076);
+      k_value = window.innerHeight / ((983 - 40) / 0.48700213427162076);
       w_value = window.innerWidth / (1920 / 859.3835143163928);
-      h_value = window.innerHeight / (983 / 483.8403018687343);
+      h_value = window.innerHeight / ((983 -40) / 483.8403018687343);
     }
     current_scale = arg_k ? arg_k : k_value;
 
@@ -836,6 +836,138 @@ function search_res_append(_data){
 
 
 function setup(cb){
+  /******************************* nav bar stuff ***************************************/
+    $('#header').mouseenter(function(){
+      d3.select(this)
+        .transition()
+        .duration(350)
+        .style('color','rgba(255,255,255,.66)')
+    })
+    $('#header').mouseleave(function(){
+      d3.select(this)
+        .transition()
+        .duration(350)
+        .style('color','rgba(255,255,255,1)')
+    })
+    $('#header').click(function(){
+       location.reload();
+    })
+
+    $('#horizontal_header_container #header_filter_univ').mouseenter(function(){
+      d3.select(this)
+        .transition()
+        .duration(500)
+        .style('color','rgba(255,255,255,0.66)')
+      $('#filtering_univ_container').css('display','block')
+
+      d3.select('#header_MAP').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#map_view_container').style('display','none')
+      d3.select('#header_sorting').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#GRAPH_CONTAINER').style('display','none')
+
+      d3.selectAll('#filtering_univ_container span')
+        .selectAll(function(d,i){
+          d3.select(this)
+            .style('opacity',0)
+            .style('transform','translate(0, ' + '-20px' + ')')
+            .transition()
+            .duration(500)
+            .delay(i*100)
+            .style('transform','translate(0, ' + '0px' + ')')
+              .style('opacity',1)
+        })
+    });
+    $('#horizontal_header_container #header_filter_univ').mouseleave(function(){
+      d3.selectAll('#filtering_univ_container span')
+        .selectAll(function(d,i){
+          $(this).mouseenter(function(){
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .style('opacity',.8)
+              .transition()
+              .duration(200)
+              .style('opacity',1)
+            // console.log("hover_sub_item")
+          })
+          $(this).click(function(){
+            d3.select('#filtering_univ_container')
+              .style('display','none')
+            d3.select('#header_filter_univ').style('color','rgba(255,255,255,1)');
+          })
+        })
+    });
+
+    $('#horizontal_header_container #header_sorting').mouseenter(function(){
+      $('#GRAPH_CONTAINER').css('display','block');
+      d3.select(this)
+        .transition()
+        .duration(500)
+        .style('color','rgba(255,255,255,0.66)')
+      d3.select('#header_filter_univ').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#filtering_univ_container').style('display','none')
+      d3.select('#header_MAP').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#map_view_container').style('display','none')
+
+      d3.selectAll('#GRAPH_CONTAINER h2').selectAll(function(d,i){
+        d3.select(this)
+          .style('opacity',0)
+          .style('transform','translate(0, ' + '-20px' + ')')
+          .transition()
+          .duration(500)
+          .delay(i*100)
+          .style('transform','translate(0, ' + '0px' + ')')
+          .style('opacity',1)
+      })
+      d3.selectAll('#GRAPH_CONTAINER div').selectAll(function(d,i){
+        d3.select(this)
+          .style('opacity',0)
+          .style('transform','translate(0, ' + '-20px' + ')')
+          .transition()
+          .duration(500)
+          .delay(i*100)
+          .style('transform','translate(0, ' + '0px' + ')')
+          .style('opacity',1)
+      })
+    });
+    $('#horizontal_header_container #header_sorting').mouseleave(function(){
+      d3.selectAll('#GRAPH_CONTAINER div')
+        .selectAll(function(d,i){
+          $(this).click(function(){
+            d3.select('#GRAPH_CONTAINER').style('display','none')
+            d3.select('#header_sorting').style('color','rgba(255,255,255,1)')
+          })
+        })
+    })
+
+    $('#horizontal_header_container #header_MAP').mouseenter(function(){
+      $('#map_view_container').css('display','block')
+      d3.select(this)
+        .transition()
+        .duration(500)
+        .style('color','rgba(255,255,255,0.66)')
+
+      d3.select('#header_sorting').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#GRAPH_CONTAINER').style('display','none')
+      d3.select('#header_filter_univ').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#filtering_univ_container').style('display','none')
+
+      d3.select('#map_view_container')
+        .style('opacity',0)
+        .style('transform','translate(0, ' + '-20px' + ')')
+        .transition()
+        .duration(500)
+        .style('transform','translate(0, ' + '0px' + ')')
+        .style('opacity',1)
+    })
+    $('#horizontal_header_container #header_MAP').mouseleave(function(){
+      $('#map_view_container').click(function(){
+        d3.select('#map_view_container').style('display','none')
+        d3.select('#header_MAP').style('color','rgba(255,255,255,1)')
+      })
+    })
+
+/******************************* slide stuff ***************************************/
     $('.slide').css('bottom',function(){
       return (window.innerHeight - parseFloat( $(".slide").css("height")) ) * (1-0.618)
     })
@@ -1055,6 +1187,13 @@ function draw_wheel(){
     });
 
     function clicked(){
+      d3.select('#header_filter_univ').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#filtering_univ_container').style('display','none')
+      d3.select('#header_MAP').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#map_view_container').style('display','none')
+      d3.select('#header_sorting').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#GRAPH_CONTAINER').style('display','none')
+
       if(!$(".tgl-skewed").is(':checked')){
         $(".tgl-skewed").prop('checked',true)
     		$('.slide').css('right','2rem')

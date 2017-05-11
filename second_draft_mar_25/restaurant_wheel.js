@@ -865,7 +865,17 @@ function search_res_append(_data){
 
 
 function setup(cb){
+  /******************************* welcome page ***************************************/
 
+  $('#intro_button').click(function(){
+    d3.select('#intro_page').style('opacity',1)
+      .transition()
+      .duration(2000)
+      .style('opacity',0).on('end',function(){
+        d3.select('#intro_page').remove();
+        d3.select('#tooltip_wheel').style('visibility','visible')
+      });
+  })
   /******************************* nav bar stuff ***************************************/
     $('#header').mouseenter(function(){
       d3.select(this)
@@ -2446,7 +2456,7 @@ $(".map_plot").click(function(){
     if (diff > 0) {
       size_change  = .3;
     } else if (diff < 0) {
-      size_change  = .25;
+      size_change  = .2;
     }
   });
   var max = d3.max(data.map(function(d){ return d.violation.recentScore}));
@@ -2553,7 +2563,7 @@ var p_prev = {id: "arbitrary"};
 function map_add_button (map_view){
 
   $('#map_02_container .mapboxgl-control-container .mapboxgl-ctrl-top-right')
-  .css('top','60px')
+  .css('top','100px')
   .css('right',(window.innerWidth -50) + 'px')
   .css('left','10px')
 
@@ -2658,12 +2668,19 @@ $('#birds_fly_uptown').click(function(){
  map_view.flyTo({
     center: [-73.94406074752214,40.78430606685018],
     zoom: 12.95651923123018,
-    pitch: 52.79999999999984
-,
+    pitch: 52.79999999999984,
     bearing: 60,
   });
 });
 
-
+d3.select('#map_02_container .mapboxgl-control-container')
+  .append('button')
+  .attr('id','map_view_exit')
+  .text('X')
+$('#map_view_exit').click(function(){
+  console.log("click!!!!!");
+  d3.select('#map_02_container').remove();
+  $('#mapbox').css('display','block');
+})
 };
 setup(draw_wheel);

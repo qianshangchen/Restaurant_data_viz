@@ -16,6 +16,14 @@
   font-family: Miller-TextBoldItalic;
   src: url(assets/Miller-TextBoldItalic.otf);
 }
+@font-face {
+  font-family: Miller-DisplayItalicSC;
+  src: url(assets/Miller-DisplayItalicSC.otf);
+}
+@font-face {
+  font-family: Miller-TextBold;
+  src: url(assets/Miller-TextBold.otf);
+}
 /* tips : if want to set top percentage, it have to have percentage all the way top down*/
 body {
 	width: 100%;
@@ -28,13 +36,155 @@ body {
 }
 
 #intro_page{
-  background: rgba(13,19,40,.8);
+  /*background: rgba(13,19,40,.8);*/
+  background: -moz-linear-gradient(left, rgba(13,19,40,0.7) 0%, rgba(13,19,40,0.7) 44%, rgba(13,19,40,1) 81%, rgba(13,19,40,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(left, rgba(13,19,40,0.7) 0%,rgba(13,19,40,0.7) 44%,rgba(13,19,40,1) 81%,rgba(13,19,40,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to right, rgba(13,19,40,0.7) 0%,rgba(13,19,40,0.7) 44%,rgba(13,19,40,1) 81%,rgba(13,19,40,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b30d1328', endColorstr='#0d1328',GradientType=1 ); /* IE6-9 */
   z-index: 1000000000000;
-  width: 89.5%;
+  width: 100%;
   height: 100%;
+  top: 60px;
   right: 0;
   position: absolute;
 }
+#intro_page_inner_text{
+  color: white;
+  font-family: Miller-DisplayItalicSC;
+  font-size: 1.279rem;
+  font-weight: 100;
+}
+#intro_title{
+  width: 480px;
+  margin: 0 auto;
+  text-align: center;
+  margin-top: 171px;
+}
+#intro_my_website{
+  text-decoration: none;
+  color: inherit;
+}
+#intro_my_website:after{
+  content: '';
+  width: 68px;
+  position: absolute;
+  height: 1px;
+  background-color: #fff;
+  margin-left: -75px;
+  margin-top: 26px;
+}
+#intro_button{
+  color: white;
+  font-family: Miller-TextBold;
+  font-size: 1.036rem;
+  font-weight: 100;
+  text-align: center;
+  margin-top: 141px;
+  cursor: pointer;
+}
+#intro_button:after{
+  content: '';
+  width: 301px;
+  position: absolute;
+  height: 3px;
+  background-color: #fff;
+  margin-left: -303px;
+  margin-top: 24px;
+  cursor: pointer;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+#logo_01{
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  margin:-60px 0 0 -60px;
+  -webkit-animation:spin 29s linear infinite;
+  -moz-animation:spin 29s linear infinite;
+  animation:spin 29s linear infinite;
+}
+#logo_02{
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  margin:-60px 0 0 -60px;
+  -webkit-animation:spin 12s linear infinite;
+  -moz-animation:spin 12s linear infinite;
+  animation:spin 12s linear infinite;
+}
+
+@keyframes blink {
+  0% {
+      opacity: .8;
+  }
+  50% {
+      opacity: .3;
+  }
+  100% {
+      opacity: .7;
+  }
+}
+#logo_03{
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  margin:-60px 0 0 -60px;
+  /*animation: spin 12s;*/
+  animation: blink 5s;
+  animation-iteration-count: infinite;
+}
+
+
+#logo_04{
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  margin:-60px 0 0 -60px;
+  -webkit-animation:spin 17s linear infinite;
+  -moz-animation:spin 17s linear infinite;
+  animation:spin 17s linear infinite;
+}
+#logo_05{
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  margin:-60px 0 0 -60px;
+  -webkit-animation:spin 8s linear infinite;
+  -moz-animation:spin 8s linear infinite;
+  animation:spin 8s linear infinite;
+}
+#logo_06{
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  margin:-60px 0 0 -60px;
+  -webkit-animation:spin 22s linear infinite;
+  -moz-animation:spin 22s linear infinite;
+  animation:spin 22s linear infinite;
+}
+
+#tips_for_universe{
+  color: rgba(255,255,255,.6);
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.575rem;
+  text-align: center;
+  position: relative;
+  top: 201px;
+}
+
 
 #infoPanel_container {
   width: 100%;
@@ -711,6 +861,7 @@ svg{
   bottom: 0;
   left: 2.188rem;
   z-index: 1;
+  visibility: hidden;
 }
 #tooltip_search{
   position: absolute;
@@ -1282,7 +1433,7 @@ overflow: scroll;
 #china_town_fly{
   position: absolute;
   left: 0px;
-  top: 170px;
+  top: 210px;
 }
 #china_town_fly p{
   font-family: Miller-TextBoldItalic;
@@ -1303,7 +1454,7 @@ overflow: scroll;
 #little_italy_fly{
   position: absolute;
   left: 0px;
-  top: 220px;
+  top: 260px;
 }
 #little_italy_fly p{
   font-family: Miller-TextBoldItalic;
@@ -1324,7 +1475,7 @@ overflow: scroll;
 #parsons_fly{
   position: absolute;
   left: 0px;
-  top: 270px;
+  top: 310px;
 }
 #parsons_fly p{
   font-family: Miller-TextBoldItalic;
@@ -1345,7 +1496,7 @@ overflow: scroll;
 #birds_fly{
   position: absolute;
   left: 0px;
-  top: 390px;
+  top: 430px;
 }
 #birds_fly p{
   font-family: Miller-TextBoldItalic;
@@ -1364,7 +1515,7 @@ overflow: scroll;
 #birds_fly_downtown{
   position: absolute;
   left: 0px;
-  top: 340px;
+  top: 380px;
 }
 #birds_fly_downtown p{
   font-family: Miller-TextBoldItalic;
@@ -1383,7 +1534,7 @@ overflow: scroll;
 #birds_fly_uptown{
   position: absolute;
   left: 0px;
-  top: 440px;
+  top: 480px;
 }
 #birds_fly_uptown p{
   font-family: Miller-TextBoldItalic;
@@ -1397,4 +1548,17 @@ overflow: scroll;
   cursor: pointer;
   z-index: 1000;
   padding: 8px;
+}
+
+#map_view_exit{
+  position: absolute;
+  top: 4.4rem;
+  left: 0.8rem;
+  font-size: .5rem;
+  background-color: #1b1f3a;
+  height: 1.6rem;
+  width: 1.6rem;
+  border: 2px solid #ffffff;
+  z-index: 160;
+  transition: all 0.5s cubic-bezier(0.85, -0.01, 0.21, 1);
 }

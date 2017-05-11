@@ -14,7 +14,7 @@ function axis_price(change_axis,linearScaleX,linearScaleY){
       .style("opacity", 1)
     function customXAxis(g) {
         g.call(d3.axisTop(linearScaleX).tickValues([13, 27]));
-        g.selectAll('.tick line').attr('y2','-'+(window.innerHeight -70)).attr("stroke-dasharray", "2,10").style('z-index',3);
+        g.selectAll('.tick line').attr('y2','-'+(window.innerHeight -100)).attr("stroke-dasharray", "2,10").style('z-index',3);
         g.selectAll(".tick text").attr("x", 10).attr("dy", 4);
 
         g.append('text')
@@ -27,7 +27,7 @@ function axis_price(change_axis,linearScaleX,linearScaleY){
 
     var gy = change_axis.append('g')
       .attr('class','axis_y_price')
-      .attr("transform", "translate("+165 +",0)")
+      .attr("transform", "translate("+25 +",0)")
       .call(customYAxis)
       .transition().duration(10/2)
       .style("opacity", 0)
@@ -582,12 +582,12 @@ function zoom_init(arg_k, arg_x, arg_y){
     /****** deckshop" ********/
     if(window.innerHeight > 800 ){
     // {k: 0.48700213427162076, x: 759.3835143163928, y: 483.8403018687343}
-      k_value =window.innerHeight / ((983 -40) / 0.48700213427162076);
+      k_value =window.innerHeight / ((983 -40) / 0.44700213427162076);
       w_value = window.innerWidth / (1920 / 859.3835143163928);
       h_value = window.innerHeight / ((983 -40) / 483.8403018687343);
     };
     if(window.innerHeight > 1100 ){
-      k_value = window.innerHeight / ((983 - 40) / 0.48700213427162076);
+      k_value = window.innerHeight / ((983 - 40) / 0.44700213427162076);
       w_value = window.innerWidth / (1920 / 859.3835143163928);
       h_value = window.innerHeight / ((983 -40) / 483.8403018687343);
     }
@@ -601,6 +601,12 @@ function zoom_init(arg_k, arg_x, arg_y){
 
 
 function search_res_append(_data){
+  d3.select('#header_filter_univ').transition().duration(500).style('color','rgba(255,255,255,1)')
+  d3.select('#filtering_univ_container').style('display','none')
+  d3.select('#header_MAP').transition().duration(500).style('color','rgba(255,255,255,1)')
+  d3.select('#map_view_container').style('display','none')
+  d3.select('#header_sorting').transition().duration(500).style('color','rgba(255,255,255,1)')
+  d3.select('#GRAPH_CONTAINER').style('display','none')
 
   $('.popup_button').click(function(){
     $('.popup_button').css('display','none')
@@ -613,12 +619,21 @@ function search_res_append(_data){
     // toggle_mv = true;
     // $(".tgl-skewed").prop('checked',false);
   })
-  total_point_voronoi =[];
     /************************* search list ******************************/
+    d3.select('#search_list').style('height','')
     d3.select('#search_list')
       .selectAll('li')
       .remove();
+
       if(_data){
+
+        d3.select('#search_list').style('height','119px')
+        if(_data.length == 0){
+          // debugger
+          console.log('success')
+          d3.select('#search_list').style('height','0px')
+        }
+
           d3.select('#search_list')
             .selectAll('li')
             .data(_data)
@@ -644,15 +659,16 @@ function search_res_append(_data){
 
       var y = d3.scaleLinear()
       .domain(d3.extent([0,80], function(d) { return d; }))
-      .rangeRound([window.innerHeight - $('#tooltip_wheel').height() -80, margin-50])
+      .rangeRound([window.innerHeight - $('#tooltip_wheel').height() -80, margin -50])
       var x = d3.scaleLinear()
       .domain(d3.extent(cores.violation.historyScore, function(d,i) { return i; }))
       .rangeRound([28,   parseFloat(d3.select('svg').attr('width')) - margin/2 ])
       /************************* line chart line ******************************/
+
       var line = temp_svg_search_g
         .append('path')
         .attr('class','line_chart '+ "ID_"+cores.id)
-        .datum(cores.violation.historyScore)
+        .datum(cores.violation.historyScore.slice().reverse())
         .attr("fill", "none")
         .attr("stroke", "url(#gradient)")
         .attr("stroke-width", 3)
@@ -665,7 +681,7 @@ function search_res_append(_data){
           .append('text')
           .attr('class','line_discription '+"ID_TEXT"+cores.id)
           .attr('x',x(cores.violation.historyScore.length-1))
-          .attr('y',y(cores.violation.historyScore[cores.violation.historyScore.length-1]) )
+          .attr('y',y(cores.violation.historyScore[0]) )
           .attr("text-anchor", "start")
           .attr('width','50')
           .text(cores.name);
@@ -674,7 +690,7 @@ function search_res_append(_data){
           .append('text')
           .attr('class','line_discription_score  ID_SCORE'+cores.id)
           .attr('x',x(cores.violation.historyScore.length-1) )
-          .attr('y',y(cores.violation.historyScore[cores.violation.historyScore.length-1]) + 10)
+          .attr('y',y(cores.violation.historyScore[0]) + 10)
           .attr("text-anchor", "end")
           .style('opacity',0)
           .text("Highest Sanitation Score: " +d3.max(cores.violation.historyScore) );
@@ -744,18 +760,18 @@ function search_res_append(_data){
           d3.select('.axis_search_y')
           .append("text")
           .attr("fill", "#fff")
-          .attr("transform", "rotate(-90)")
+          // .attr("transform", "rotate(-90)")
           .attr("y", 6)
           .attr("dy", "1.71em")
           .attr('x','-14')
-          .attr("text-anchor", "end")
+          .attr("text-anchor", "start")
           .text("Sanitation Score");
 
           var text_off_chart = d3.select('.svg_search').append('g');
           text_off_chart.append('text')
               .attr("fill", "#fff")
               .attr('x',d3.select('.svg_search').attr('width') -50 )
-              .attr('y',d3.select('.svg_search').attr('height') * 0.925 )
+              .attr('y',d3.select('.svg_search').attr('height') * 0.955 )
               .attr("font-family", "sans-serif")
               .attr("text-anchor", "end")
               .text('Select multiple restaurants to compare')
@@ -763,7 +779,7 @@ function search_res_append(_data){
           text_off_chart.append('text')
               .attr("fill", "#fff")
               .attr('x',d3.select('.svg_search').attr('width') -50 )
-              .attr('y',d3.select('.svg_search').attr('height') *0.925 +10 )
+              .attr('y',d3.select('.svg_search').attr('height') *0.955 +10 )
               .attr("font-family", "sans-serif")
               .attr('font-size',"10")
               .attr("text-anchor", "end")
@@ -772,15 +788,21 @@ function search_res_append(_data){
 
           toogle_axis_search = false;
       }
-
-      var feed_voronoi= cores.violation.historyScore.map(function(d,i){var obj = {};obj[i] = d;obj.id = cores.id;obj.xScale = x;return obj;})
+      var voronoi_correct_array = cores.violation.historyScore.slice().reverse();
+      console.log('diclear')
+      var feed_voronoi= voronoi_correct_array.map(function(d,i){
+        var obj = {};
+        obj[i] = d;
+        obj.id = cores.id;obj.xScale = x;
+        return obj;
+      })
       total_point_voronoi.push(feed_voronoi);
       d3.selectAll('.voronoi path').remove();
       d3.selectAll('.voronoi').remove();
       var voronoi = d3.voronoi()
           .x(function(d,i) {return d.xScale(+Object.keys(d)[0]);})
           .y(function(d) {return y(d[Object.keys(d)[0]]); })
-          .extent([[50, 100], [$('.svg_search').width()-50, $('.svg_search').height()-100]]);
+          .extent([[50, 50], [$('.svg_search').width()-50, $('.svg_search').height()-100]]);
       var voronoiGroup = temp_svg_search_g.append("g")
           .attr("class", "voronoi");
 
@@ -808,6 +830,13 @@ function search_res_append(_data){
             d3.select('line_discription_score').style('opacity',0)
           })
           .on('click',function(d){
+            d3.select('#header_filter_univ').transition().duration(500).style('color','rgba(255,255,255,1)')
+            d3.select('#filtering_univ_container').style('display','none')
+            d3.select('#header_MAP').transition().duration(500).style('color','rgba(255,255,255,1)')
+            d3.select('#map_view_container').style('display','none')
+            d3.select('#header_sorting').transition().duration(500).style('color','rgba(255,255,255,1)')
+            d3.select('#GRAPH_CONTAINER').style('display','none')
+
                 if(!click_t){
                   $('.slide').css('right','-23.063rem');
                   console.log("dprese");
@@ -836,6 +865,7 @@ function search_res_append(_data){
 
 
 function setup(cb){
+
   /******************************* nav bar stuff ***************************************/
     $('#header').mouseenter(function(){
       d3.select(this)
@@ -1035,6 +1065,9 @@ function setup(cb){
 
 
 function draw_wheel(){
+  /********** come with random restaurant when load complete **********/
+    node_for_text = data[Math.floor(Math.random() *1000)];
+    jquery();
     /*****************************************************************
     * search;
     *
@@ -1047,9 +1080,17 @@ function draw_wheel(){
       $(".search").toggleClass("close");
       $(".input").toggleClass("square");
       if ($('.search').hasClass('close')){
+              d3.select('#header_filter_univ').transition().duration(500).style('color','rgba(255,255,255,1)')
+              d3.select('#filtering_univ_container').style('display','none')
+              d3.select('#header_MAP').transition().duration(500).style('color','rgba(255,255,255,1)')
+              d3.select('#map_view_container').style('display','none')
+              d3.select('#header_sorting').transition().duration(500).style('color','rgba(255,255,255,1)')
+              d3.select('#GRAPH_CONTAINER').style('display','none')
+
               $('.search_exit_button').css('display','block')
               add_search_exit(); //only once
               $('.search_exit_button').click(function(){
+
                 expand();
               })
 
@@ -1058,7 +1099,7 @@ function draw_wheel(){
               $('.mask-on').css('background','linear-gradient(to left, rgba(0, 0, 0, 0.7) 0%,rgba(0, 0, 0, 0.7) 37%,rgb(27, 31, 48) 80%)')
               $('.mask-on').css('z-index','1');
               $('#tooltip_wheel').css('display','none')
-              $('#tooltip_search').css('display','block').css('bottom',function(){return 50;})
+              $('#tooltip_search').css('display','block').css('bottom',function(){return 5;})
               d3.select(".mask-on")
                 .transition()
                 .ease(d3.easeQuad)
@@ -1071,7 +1112,7 @@ function draw_wheel(){
               $('#search_list').css('height','')
               toogle_axis_search = true;
 
-              temp_svg_search = d3.select('body').append('svg').attr('width',window.innerWidth-((23*16)+150)).attr('height',window.innerHeight).attr('class','svg_search');
+              temp_svg_search = d3.select('body').append('svg').attr('width',window.innerWidth-(23*16)).attr('height',window.innerHeight - 60).attr('class','svg_search');
               function grai(){
                 if(svg_search_toggle){
                 gradient = temp_svg_search.append("defs").append("linearGradient")
@@ -1100,7 +1141,15 @@ function draw_wheel(){
               search_res_append();
       }
       else{
+              d3.select('#header_filter_univ').transition().duration(500).style('color','rgba(255,255,255,1)')
+              d3.select('#filtering_univ_container').style('display','none')
+              d3.select('#header_MAP').transition().duration(500).style('color','rgba(255,255,255,1)')
+              d3.select('#map_view_container').style('display','none')
+              d3.select('#header_sorting').transition().duration(500).style('color','rgba(255,255,255,1)')
+              d3.select('#GRAPH_CONTAINER').style('display','none')
+
               $('input').blur();
+              total_point_voronoi =[];
               $('.search_exit_button').css('display','none')
 
               d3.select(".mask-on")
@@ -1127,7 +1176,7 @@ function draw_wheel(){
     $('.input').keyup(function(e){
       var search_res = fuse.search(this.value);
       var trim = search_res.splice(0,15);
-      console.log(trim);
+      // console.log(trim);
       search_res_append(trim);
     })
     /*****************************************************************
@@ -1419,11 +1468,11 @@ function draw_wheel(){
         context.beginPath();
 
         context.fillStyle = "rgba(255, 255, 255, .2)";
-        context.font = "900 30px futura"; //Miller-DisplayItalic
+        context.font = "900 120px futura"; //Miller-DisplayItalic
         context.textAlign = "left";
-        context.fillText("GRADE: A",graph.nodes[2619+69].x_scatter,graph.nodes[2619+69].y_scatter);
-        context.fillText("GRADE: B",graph.nodes[4383+66].x_scatter,graph.nodes[2619+69].y_scatter);
-        context.fillText("GRADE: C",graph.nodes[4507+66].x_scatter,graph.nodes[2619+69].y_scatter);
+        context.fillText(" A",graph.nodes[5170+65].x_scatter,graph.nodes[4492+66].y_scatter);
+        context.fillText(" B",graph.nodes[997+76].x_scatter,graph.nodes[4492+66].y_scatter);
+        context.fillText(" C",graph.nodes[210+78].x_scatter,graph.nodes[4492+66].y_scatter);
 
 	      graph.nodes.forEach(function(d) {
             if(d.gr == 'v'){
@@ -1535,10 +1584,10 @@ function draw_wheel(){
 	  var rate_min = d3.min(rate)
 	  var linearScaleX = d3.scaleLinear()
       .domain([vio_s_min,vio_s_max])
-      .range([150 + 25, window.innerWidth - 400]);
+      .range([55 , window.innerWidth - 400]);
 	  var linearScaleY = d3.scaleLinear()
       .domain([rate_max,rate_min])
-      .range([0 + 35, window.innerHeight - 35]);
+      .range([60 + 20, window.innerHeight - 35]);
     graph.nodes.forEach(function(d){
 	    if(d.gr == "r"){
         d.x_wheel = d.x;
@@ -1572,20 +1621,21 @@ function draw_wheel(){
         g.call(d3.axisTop(linearScaleX)
             .tickValues([13, 27])
               );
-        g.selectAll('.tick line').attr('y2','-'+(window.innerHeight -70)).attr("stroke-dasharray", "2,10").style('z-index',3);
+        g.selectAll('.tick line').attr('y2','-'+(window.innerHeight -(70+30))).attr("stroke-dasharray", "2,10").style('z-index',3);
         g.selectAll(".tick text").attr("x", 10).attr("dy", 4);
 
         g.append('text')
           .attr('y',15)
-          .attr('x',parseFloat(g.select('path').attr('d').match(/[^M].+,/g)))
+          .attr('x',parseFloat(g.select('path').attr('d').match(/[^M].+,/g)) -40.5)
           .attr('text-anchor','start')
-          .style('font-size','0.558rem')
+          .style('font-size','0.75rem')
+          .style('font-family','futura')
           .text('Sanitation Score')
       }
 
     var gy = svg.append('g')
       .attr('id','axis_y')
-      .attr("transform", "translate("+165 +",0)")
+      .attr("transform", "translate("+45 +",0)")
       .call(customYAxis)
       .transition().duration(10/2)
       .style("opacity", 0)
@@ -1601,11 +1651,13 @@ function draw_wheel(){
 
         g.select('.tick')
           .append('text')
-          .attr('y',g.select('.tick').select('text').attr('y') -25)
-          .attr('x',g.select('.tick').select('line').attr('x2'))
+          .attr('y',(g.select('.tick').select('text').attr('y') -25 + 61))
+          .attr('x',(g.select('.tick').select('line').attr('x2') -7))
           .attr('dy','0.32em')
           .attr('text-anchor','start')
-          .style('font-size','0.558rem')
+          .style('font-size','0.75rem')
+          .style('font-family','futura')
+          .attr('transform','rotate(90)')
           .text('Foursquare Rating')
       }
     /***************************************** animation *******************************************/
@@ -1716,6 +1768,9 @@ function draw_wheel(){
     var p_prev = {id: "arbitrary"};
     var clicked = true;
     function grid_mv(){
+
+
+
         clicked = true;
         featured_point=[];
     	  var m = d3.mouse(this),
@@ -1723,6 +1778,8 @@ function draw_wheel(){
         if(p_prev.id !== p.id){
           p_prev = p;
           node_for_text = data[+p.id];
+          console.log(p)
+          console.log(node_for_text);
           jquery();
           // console.log("prev !== next");
           (function(){
@@ -1833,6 +1890,13 @@ function draw_wheel(){
         }
     }
     function grid_click(){
+      d3.select('#header_filter_univ').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#filtering_univ_container').style('display','none')
+      d3.select('#header_MAP').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#map_view_container').style('display','none')
+      d3.select('#header_sorting').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#GRAPH_CONTAINER').style('display','none')
+
 
       if(clicked){
         var dig_data = featured_point,
@@ -2107,7 +2171,7 @@ function draw_wheel(){
     var vio_s_min = d3.min(vio_s)
     var linearScaleX = d3.scaleLinear()
       .domain([vio_s_min,vio_s_max])
-      .range([150 + 25, window.innerWidth - 400]);
+      .range([55, window.innerWidth - 400]);
     //y axis
     var price_tier_plot =graph.nodes.map(function(d){if(!isNaN(+d.id)){return data[+d.id].price;}})
     price_tier_plot.splice(0,78);
@@ -2115,7 +2179,7 @@ function draw_wheel(){
     var price_min = d3.min(price_tier_plot)
     var linearScaleY = d3.scaleLinear()
       .domain([price_max,0])
-      .range([0 + 35, window.innerHeight - 35]);
+      .range([60 + 35, window.innerHeight - 35]);
     //set up object property
     graph.nodes.forEach(function(d){
       if(d.gr == "r"){
@@ -2130,12 +2194,8 @@ function draw_wheel(){
 
     //Collision detection
     var collision = d3.forceSimulation()
-        // .velocityDecay(.1)
-        // .alphaDecay(.01)
         .force("x", d3.forceX(function(d){return d.x_price_scatter; }).strength(0.385))
         .force("y", d3.forceY(function(d){return d.y_price_scatter}).strength(0.025))
-        // .force("collision", d3.forceCollide(4))
-        // .force("charge",d3.forceManyBody().strength(-0.1))
 
     axis_price(change_axis,linearScaleX,linearScaleY);
     //draw loop
@@ -2151,12 +2211,12 @@ function draw_wheel(){
       context.beginPath();
 
 
-      context.fillStyle = "rgba(255, 255, 255, .2)";
-      context.font = "900 30px futura"; //Miller-DisplayItalic
-      context.textAlign = "left";
-      context.fillText("GRADE: A",graph.nodes[2619+69].x_scatter,graph.nodes[2619+69].y_scatter);
-      context.fillText("GRADE: B",graph.nodes[4383+66].x_scatter,graph.nodes[2619+69].y_scatter);
-      context.fillText("GRADE: C",graph.nodes[4507+66].x_scatter,graph.nodes[2619+69].y_scatter);
+      // context.fillStyle = "rgba(255, 255, 255, .2)";
+      // context.font = "900 120px futura"; //Miller-DisplayItalic
+      // context.textAlign = "left";
+      // context.fillText(" A",graph.nodes[5170+65].x_scatter,graph.nodes[4492+66].y_scatter);
+      // context.fillText(" B",graph.nodes[997+76].x_scatter,graph.nodes[4492+66].y_scatter);
+      // context.fillText(" C",graph.nodes[210+78].x_scatter,graph.nodes[4492+66].y_scatter);
 
       graph.nodes.forEach(function(d){
         if(d.gr == 'r'){
@@ -2251,6 +2311,13 @@ function draw_wheel(){
 
     function price_click(){
       console.log("clicked");
+      d3.select('#header_filter_univ').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#filtering_univ_container').style('display','none')
+      d3.select('#header_MAP').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#map_view_container').style('display','none')
+      d3.select('#header_sorting').transition().duration(500).style('color','rgba(255,255,255,1)')
+      d3.select('#GRAPH_CONTAINER').style('display','none')
+
 
       if(clicked_price){
         d3.select('.temporary').on('mousemove',null)
@@ -2379,7 +2446,7 @@ $(".map_plot").click(function(){
     if (diff > 0) {
       size_change  = .3;
     } else if (diff < 0) {
-      size_change  = .5;
+      size_change  = .25;
     }
   });
   var max = d3.max(data.map(function(d){ return d.violation.recentScore}));
@@ -2431,10 +2498,19 @@ $(".map_plot").click(function(){
   render();
   var clicked_map_view = true;
   map_view.on('click',function(e){
-    console.log(map_view.getCenter())
-    console.log(map_view.getZoom())
-    console.log(map_view.getBearing())
-    console.log(map_view.getPitch())
+    d3.select('#header_filter_univ').transition().duration(500).style('color','rgba(255,255,255,1)')
+    d3.select('#filtering_univ_container').style('display','none')
+    d3.select('#header_MAP').transition().duration(500).style('color','rgba(255,255,255,1)')
+    d3.select('#map_view_container').style('display','none')
+    d3.select('#header_sorting').transition().duration(500).style('color','rgba(255,255,255,1)')
+    d3.select('#GRAPH_CONTAINER').style('display','none')
+
+
+
+    // console.log(map_view.getCenter())
+    // console.log(map_view.getZoom())
+    // console.log(map_view.getBearing())
+    // console.log(map_view.getPitch())
 
      p = tree.find(e.point.x, e.point.y);
      node_for_text = p;
@@ -2475,6 +2551,13 @@ var p_prev = {id: "arbitrary"};
 
 
 function map_add_button (map_view){
+
+  $('#map_02_container .mapboxgl-control-container .mapboxgl-ctrl-top-right')
+  .css('top','60px')
+  .css('right',(window.innerWidth -50) + 'px')
+  .css('left','10px')
+
+
  /********** china town ************/
  d3.select('#map_02_container .mapboxgl-control-container')
     .append('span')
@@ -2528,5 +2611,59 @@ function map_add_button (map_view){
       bearing:12.432028020413211
     });
   });
+/********** Bird's Eye View  ************/
+d3.select('#map_02_container .mapboxgl-control-container')
+   .append('span')
+   .attr('id','birds_fly')
+   .append('p')
+   .append('a')
+   .text('BIRD\'S EYE VIEW - MID TOWN')
+   .attr('id','birds_fly_inner')
+
+$('#birds_fly').click(function(){
+ map_view.flyTo({
+    center: [-73.98499481968639, 40.74442495683266],
+    zoom: 13.915641541140074,
+    pitch: 58,
+    bearing: 44.80000000000007,
+  });
+});
+/********** Bird's Eye View - downtown  ************/
+d3.select('#map_02_container .mapboxgl-control-container')
+   .append('span')
+   .attr('id','birds_fly_downtown')
+   .append('p')
+   .append('a')
+   .text('BIRD\'S EYE VIEW - DOWN TOWN')
+   .attr('id','birds_fly_downtown_inner')
+
+$('#birds_fly_downtown').click(function(){
+ map_view.flyTo({
+    center: [-74.00326850065716,40.71402543923372],
+    zoom: 13.915641541140074,
+    pitch: 58,
+    bearing: 44.80000000000007,
+  });
+});
+/********** Bird's Eye View - uptown  ************/
+d3.select('#map_02_container .mapboxgl-control-container')
+   .append('span')
+   .attr('id','birds_fly_uptown')
+   .append('p')
+   .append('a')
+   .text('BIRD\'S EYE VIEW - UP TOWN')
+   .attr('id','birds_fly_uptown_inner')
+
+$('#birds_fly_uptown').click(function(){
+ map_view.flyTo({
+    center: [-73.94406074752214,40.78430606685018],
+    zoom: 12.95651923123018,
+    pitch: 52.79999999999984
+,
+    bearing: 60,
+  });
+});
+
+
 };
 setup(draw_wheel);

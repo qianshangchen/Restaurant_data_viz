@@ -2698,9 +2698,14 @@ function map_add_button (map_view){
       .attr('id','map_view_exit')
       .text('X')
     $('#map_view_exit').click(function(){
-      console.log("click!!!!!");
-      d3.select('#map_02_container').remove();
-      $('#mapbox').css('display','block');
+	      d3.select('#map_02_container').style('opacity','1')
+        .transition()
+        .duration(1000)
+        .style("opacity",'0')
+        .on('end',function(){
+          d3.select('#map_02_container').remove();
+          $('#mapbox').css('display','block');
+        })
     })
 };
 setup(draw_wheel);

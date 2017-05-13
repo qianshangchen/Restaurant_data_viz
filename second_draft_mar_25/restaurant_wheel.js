@@ -1,3 +1,4 @@
+var graph_ABC_toggle = false;
 var toggle_axis_price = true;
 function axis_price(change_axis,linearScaleX,linearScaleY){
   if(toggle_axis_price){
@@ -314,7 +315,7 @@ function jquery(){
         .text(function(d){
             if(d.type == "disliked"){
               if(d.text_extract.length == 0){
-                return "no key word for this negative review"
+                return "no key words for this negative review"
               }else{
                 return d.text_extract.join(' - ');
               }
@@ -484,7 +485,9 @@ function jquery_vio(){
 
 function drawLink(d){
   context.moveTo(d.source.x, d.source.y);
-  context.lineTo(d.target.x, d.target.y);
+  context.lineTo(d.target.x,d.target.y);
+
+
 };
 
 function drawNode_inspc(d) {
@@ -521,8 +524,8 @@ function drawNode_button_last_inspect(d) {
 function drawNode_restaurant_A(d) {
   if(d.gr == 'r' ){
     if(d.gd <=13){
-      context.moveTo(d.x + 3, d.y);
-      context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+      context.moveTo(d.x + 3.3, d.y);
+      context.arc(d.x, d.y, 3.3, 0, 2 * Math.PI);
     }
   }
 };
@@ -530,8 +533,8 @@ function drawNode_restaurant_A(d) {
 function drawNode_restaurant_B(d) {
   if(d.gr == 'r' ){
     if(d.gd >13 && d.gd <=27){
-      context.moveTo(d.x + 3, d.y);
-      context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+      context.moveTo(d.x + 3.3, d.y);
+      context.arc(d.x, d.y, 3.3, 0, 2 * Math.PI);
     }
   }
 };
@@ -539,8 +542,8 @@ function drawNode_restaurant_B(d) {
 function drawNode_restaurant_C(d) {
   if(d.gr == 'r' ){
     if(d.gd >27 ){
-      context.moveTo(d.x + 3, d.y);
-      context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+      context.moveTo(d.x + 3.3, d.y);
+      context.arc(d.x, d.y, 3.3, 0, 2 * Math.PI);
     }
   }
 };
@@ -548,8 +551,8 @@ function drawNode_restaurant_C(d) {
 function drawNode_interact(d) {
   if(d.gr == 'r' ){
     // console.log(d)
-    context.moveTo(d.x + 3, d.y);
-    context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+    context.moveTo(d.x + 5, d.y);
+    context.arc(d.x, d.y, 5, 0, 2 * Math.PI);
   }
   if(d.gr == 'v' ) {
     context.fillStyle = "#fff";
@@ -870,7 +873,7 @@ function setup(cb){
   $('#intro_button').click(function(){
     d3.select('#intro_page').style('opacity',1)
       .transition()
-      .duration(2000)
+      .duration(1000)
       .style('opacity',0).on('end',function(){
         d3.select('#intro_page').remove();
         d3.select('#tooltip_wheel').style('visibility','visible')
@@ -1353,15 +1356,15 @@ function draw_wheel(){
             if(node_pointed !== undefined) {
               ticked();
               if(node_pointed.gr){
-                  if(node_pointed_previous.id !== node_pointed.id){
-                    node_pointed_previous = node_pointed;
-                    if(node_pointed.gr == 'v'){
-                    // draw_vio_tooltip(node_pointed);
-                    }
-                    if(node_pointed.gr == 'r'){
-                    //   draw_tooltip_mouseover_r()
-                    }
+                if(node_pointed_previous.id !== node_pointed.id){
+                  node_pointed_previous = node_pointed;
+                  if(node_pointed.gr == 'v'){
+                  // draw_vio_tooltip(node_pointed);
                   }
+                  if(node_pointed.gr == 'r'){
+                  //   draw_tooltip_mouseover_r()
+                  }
+                }
               }
             }
         })();
@@ -1433,9 +1436,10 @@ function draw_wheel(){
 
       //interaction links
       if(link_associated.length !== 0){
+
           context.beginPath();
           link_associated.forEach(drawLink)
-          context.strokeStyle = "rgba(151, 10, 198,0.575)";
+          context.strokeStyle = "rgba(151, 10, 198,1)";
           context.stroke();
       }
       //interaction nodes:
@@ -1477,12 +1481,14 @@ function draw_wheel(){
 	      context.clearRect(0,0,width,height);
         context.beginPath();
 
-        context.fillStyle = "rgba(255, 255, 255, .2)";
-        context.font = "900 120px futura"; //Miller-DisplayItalic
-        context.textAlign = "left";
-        context.fillText(" A",graph.nodes[5170+65].x_scatter,graph.nodes[4492+66].y_scatter);
-        context.fillText(" B",graph.nodes[997+76].x_scatter,graph.nodes[4492+66].y_scatter);
-        context.fillText(" C",graph.nodes[210+78].x_scatter,graph.nodes[4492+66].y_scatter);
+        if(graph_ABC_toggle){
+          context.fillStyle = "rgba(255, 255, 255, .2)";
+          context.font = "900 120px futura"; //Miller-DisplayItalic
+          context.textAlign = "left";
+          context.fillText(" A",graph.nodes[5170+65].x_scatter,graph.nodes[4492+66].y_scatter);
+          context.fillText(" B",graph.nodes[997+76].x_scatter,graph.nodes[4492+66].y_scatter);
+          context.fillText(" C",graph.nodes[210+78].x_scatter,graph.nodes[4492+66].y_scatter);
+        }
 
 	      graph.nodes.forEach(function(d) {
             if(d.gr == 'v'){
@@ -1534,7 +1540,9 @@ function draw_wheel(){
 
   $('.following_test').click(click_for_test_n_following);
 
+  $('#header_sorting').click(click_for_test_n_following);
   function click_for_test_n_following(){
+
     d3.selectAll('.axis').style('visibility','');
     d3.selectAll('#axis_y').style('visibility','');
 
@@ -1748,6 +1756,8 @@ function draw_wheel(){
             timer.stop();
             toggle_stroke = false;
             third_button_clicked = false;
+            graph_ABC_toggle = true;
+            ticked();
           }
         })
     /***************************************** find *******************************************/
@@ -1769,6 +1779,8 @@ function draw_wheel(){
               .canvas(true);
           var canvas_temp = document.querySelector('.temporary');
           var context_temp = canvas_temp.getContext('2d');
+          $('.temporary').css('z-index',1)
+
         }
       }
     /***************************************** second canvas *******************************************/
@@ -2028,7 +2040,10 @@ function draw_wheel(){
     }
   }
 
-  $('.test_two').click(function(){
+  $('.test_two').click(test_two_click_fc);
+  $('#header_filter_univ').click(test_two_click_fc);
+
+  function test_two_click_fc(){
     if(toggle_color_for_last_inspect){
       ticked();
       toggle_color_for_last_inspect = false;
@@ -2039,6 +2054,7 @@ function draw_wheel(){
     $('#plot_rating').removeClass('active');
     $('#plot_rating_following').removeClass('active');
     $('#plot_price').removeClass('active')
+    $('#plot_inspection').addClass('active')
 
     $('#tooltip_inspect_time').css('visibility','hidden')
     $('#tooltip_wheel').css('display','block')
@@ -2066,6 +2082,7 @@ function draw_wheel(){
        .range(d3.quantize(d3.interpolateRgb('rgb(254, 77, 1)','rgb(42, 255, 80)' ),4));
 
    var timer = d3.timer(function(e){
+     graph_ABC_toggle = false;
        var t = Math.min(1,d3.easeCubicInOut(e/3000));
        if(third_button_clicked){
          graph.nodes.forEach(function(d){
@@ -2135,12 +2152,13 @@ function draw_wheel(){
        }
    })
    select_canvas.on('mousemove',mv);
-  });
+}
 
   $('.test_three').click(function(){
     $('#plot_inspection').removeClass('active')
     $('#plot_rating_following').removeClass('active');
     $('#plot_price').addClass('active');
+    $('.temporary').css('z-index',1)
 
     d3.selectAll(".axis")
       .transition()
@@ -2405,9 +2423,11 @@ function draw_wheel(){
     });
   }
 
-$(".map_plot").click(function(){
+$(".map_plot").click(map_plot_fc)
+$("#header_MAP").click(map_plot_fc)
+function map_plot_fc(){
 
-
+  $('.temporary').css('z-index',0)
   $('#mapbox').css('display','none')
 
   d3.select('#infoPanel_container')
@@ -2456,7 +2476,7 @@ $(".map_plot").click(function(){
     if (diff > 0) {
       size_change  = .3;
     } else if (diff < 0) {
-      size_change  = .2;
+      size_change  = .3;
     }
   });
   var max = d3.max(data.map(function(d){ return d.violation.recentScore}));
@@ -2557,130 +2577,130 @@ var p_prev = {id: "arbitrary"};
         $('#mapbox').css('display','none');
     }
   })// map mouseover
-})
+}
 
 
 function map_add_button (map_view){
 
-  $('#map_02_container .mapboxgl-control-container .mapboxgl-ctrl-top-right')
-  .css('top','100px')
-  .css('right',(window.innerWidth -50) + 'px')
-  .css('left','10px')
+    $('#map_02_container .mapboxgl-control-container .mapboxgl-ctrl-top-right')
+    .css('top','100px')
+    .css('right',(window.innerWidth -50) + 'px')
+    .css('left','10px')
 
 
- /********** china town ************/
- d3.select('#map_02_container .mapboxgl-control-container')
-    .append('span')
-    .attr('id','china_town_fly')
-    .append('p')
-    .append('a')
-    .text('CHINA TOWN')
-    .attr('id','china_town_fly_inner')
+   /********** china town ************/
+   d3.select('#map_02_container .mapboxgl-control-container')
+      .append('span')
+      .attr('id','china_town_fly')
+      .append('p')
+      .append('a')
+      .text('CHINA TOWN')
+      .attr('id','china_town_fly_inner')
 
-  $('#china_town_fly').click(function(){
+    $('#china_town_fly').click(function(){
 
-    map_view.flyTo({
-      center: [-73.98922187254743, 40.71574842130374],
-      zoom:15,
-      pitch: 3.5,
-      bearing:12.432028020413211
+      map_view.flyTo({
+        center: [-73.98922187254743, 40.71574842130374],
+        zoom:15,
+        pitch: 3.5,
+        bearing:12.432028020413211
+      });
+    })
+    /********** little italy ************/
+    d3.select('#map_02_container .mapboxgl-control-container')
+       .append('span')
+       .attr('id','little_italy_fly')
+       .append('p')
+       .append('a')
+       .text('LITTLE ITALY')
+       .attr('id','little_italy_fly_inner')
+
+    $('#little_italy_fly').click(function(){
+
+     map_view.flyTo({
+        center: [-73.99664850718472,40.72175910303059],
+        zoom:15.5122600128775,
+        pitch: 3.5,
+        bearing:12.432028020413211
+      });
     });
-  })
-  /********** little italy ************/
+    /********** parsons ************/
+    d3.select('#map_02_container .mapboxgl-control-container')
+       .append('span')
+       .attr('id','parsons_fly')
+       .append('p')
+       .append('a')
+       .text('PARSONS')
+       .attr('id','parsons_fly_inner')
+
+    $('#parsons_fly').click(function(){
+     map_view.flyTo({
+        center: [-73.99320257625709, 40.735620893181874],
+        zoom:16.79656091478192,
+        pitch: 3.5,
+        bearing:12.432028020413211
+      });
+    });
+  /********** Bird's Eye View  ************/
   d3.select('#map_02_container .mapboxgl-control-container')
      .append('span')
-     .attr('id','little_italy_fly')
+     .attr('id','birds_fly')
      .append('p')
      .append('a')
-     .text('LITTLE ITALY')
-     .attr('id','little_italy_fly_inner')
+     .text('BIRD\'S EYE VIEW - MID TOWN')
+     .attr('id','birds_fly_inner')
 
-  $('#little_italy_fly').click(function(){
-
+  $('#birds_fly').click(function(){
    map_view.flyTo({
-      center: [-73.99664850718472,40.72175910303059],
-      zoom:15.5122600128775,
-      pitch: 3.5,
-      bearing:12.432028020413211
+      center: [-73.98499481968639, 40.74442495683266],
+      zoom: 13.915641541140074,
+      pitch: 58,
+      bearing: 44.80000000000007,
     });
   });
-  /********** parsons ************/
+  /********** Bird's Eye View - downtown  ************/
   d3.select('#map_02_container .mapboxgl-control-container')
      .append('span')
-     .attr('id','parsons_fly')
+     .attr('id','birds_fly_downtown')
      .append('p')
      .append('a')
-     .text('PARSONS')
-     .attr('id','parsons_fly_inner')
+     .text('BIRD\'S EYE VIEW - DOWN TOWN')
+     .attr('id','birds_fly_downtown_inner')
 
-  $('#parsons_fly').click(function(){
+  $('#birds_fly_downtown').click(function(){
    map_view.flyTo({
-      center: [-73.99320257625709, 40.735620893181874],
-      zoom:16.79656091478192,
-      pitch: 3.5,
-      bearing:12.432028020413211
+      center: [-74.00326850065716,40.71402543923372],
+      zoom: 13.915641541140074,
+      pitch: 58,
+      bearing: 44.80000000000007,
     });
   });
-/********** Bird's Eye View  ************/
-d3.select('#map_02_container .mapboxgl-control-container')
-   .append('span')
-   .attr('id','birds_fly')
-   .append('p')
-   .append('a')
-   .text('BIRD\'S EYE VIEW - MID TOWN')
-   .attr('id','birds_fly_inner')
+  /********** Bird's Eye View - uptown  ************/
+  d3.select('#map_02_container .mapboxgl-control-container')
+     .append('span')
+     .attr('id','birds_fly_uptown')
+     .append('p')
+     .append('a')
+     .text('BIRD\'S EYE VIEW - UP TOWN')
+     .attr('id','birds_fly_uptown_inner')
 
-$('#birds_fly').click(function(){
- map_view.flyTo({
-    center: [-73.98499481968639, 40.74442495683266],
-    zoom: 13.915641541140074,
-    pitch: 58,
-    bearing: 44.80000000000007,
-  });
-});
-/********** Bird's Eye View - downtown  ************/
-d3.select('#map_02_container .mapboxgl-control-container')
-   .append('span')
-   .attr('id','birds_fly_downtown')
-   .append('p')
-   .append('a')
-   .text('BIRD\'S EYE VIEW - DOWN TOWN')
-   .attr('id','birds_fly_downtown_inner')
+  $('#birds_fly_uptown').click(function(){
+     map_view.flyTo({
+        center: [-73.94406074752214,40.78430606685018],
+        zoom: 12.95651923123018,
+        pitch: 52.79999999999984,
+        bearing: 60,
+      });
+    });
 
-$('#birds_fly_downtown').click(function(){
- map_view.flyTo({
-    center: [-74.00326850065716,40.71402543923372],
-    zoom: 13.915641541140074,
-    pitch: 58,
-    bearing: 44.80000000000007,
-  });
-});
-/********** Bird's Eye View - uptown  ************/
-d3.select('#map_02_container .mapboxgl-control-container')
-   .append('span')
-   .attr('id','birds_fly_uptown')
-   .append('p')
-   .append('a')
-   .text('BIRD\'S EYE VIEW - UP TOWN')
-   .attr('id','birds_fly_uptown_inner')
-
-$('#birds_fly_uptown').click(function(){
- map_view.flyTo({
-    center: [-73.94406074752214,40.78430606685018],
-    zoom: 12.95651923123018,
-    pitch: 52.79999999999984,
-    bearing: 60,
-  });
-});
-
-d3.select('#map_02_container .mapboxgl-control-container')
-  .append('button')
-  .attr('id','map_view_exit')
-  .text('X')
-$('#map_view_exit').click(function(){
-  console.log("click!!!!!");
-  d3.select('#map_02_container').remove();
-  $('#mapbox').css('display','block');
-})
+    d3.select('#map_02_container .mapboxgl-control-container')
+      .append('button')
+      .attr('id','map_view_exit')
+      .text('X')
+    $('#map_view_exit').click(function(){
+      console.log("click!!!!!");
+      d3.select('#map_02_container').remove();
+      $('#mapbox').css('display','block');
+    })
 };
 setup(draw_wheel);

@@ -1,5 +1,3 @@
-
-
 @font-face {
   font-family: futura;
   src: url(assets/Futura-Bold);
@@ -519,12 +517,33 @@ button .test_two{
 
 #mapbox{
     width: 19.438rem;
+    /*19.34rem*/
 	height: 19.155rem;
 	position: absolute;
 	bottom: -52px;
 	z-index: 1;
 
 }
+#mapbox_blocker_top{
+  position: absolute;
+  z-index: 3;
+  background-color: #1b1f3a;
+  top: 0;
+  left: 0;
+  width: 315px;
+  height: 1px;
+}
+
+#mapbox_blocker_right{
+  position: absolute;
+  z-index: 3;
+  background-color: #1b1f3a;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+}
+
 #mapbox_blocker{
   position: absolute;
   z-index: 3;

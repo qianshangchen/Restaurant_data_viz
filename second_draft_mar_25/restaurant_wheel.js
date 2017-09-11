@@ -869,14 +869,16 @@ function search_res_append(_data){
 
 function setup(cb){
   /******************************* welcome page ***************************************/
-
   $('#intro_button').click(function(){
+    setTimeout(zoom_init,500)
     d3.select('#intro_page').style('opacity',1)
       .transition()
       .duration(1000)
       .style('opacity',0).on('end',function(){
         d3.select('#intro_page').remove();
         d3.select('#tooltip_wheel').style('visibility','visible')
+        d3.select('#nav_container').style('display','block')
+        d3.select('#infoPanel_container').style('display','block')
       });
   })
   /******************************* nav bar stuff ***************************************/
@@ -1203,7 +1205,8 @@ function draw_wheel(){
           transform = d3.event.transform;
           ticked();
       	})
-    zoom_init()
+    // zoom_init()
+    zoom_init(0.34099738724977154,window.innerWidth /2 ,window.innerHeight /2);
     /*****************************************************************
     * bind simulation;
     *
